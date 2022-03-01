@@ -1,2 +1,6 @@
-*/.DS_Store
-*/.ipynb_checkpoints/*.ipynb
+*.DS_Store
+*.ipynb_checkpoints/*.ipynb
+__pychache__
+*.virtual_documents
+*.ipynb_checkpoints
+config.py

@@ -4,3 +4,5 @@ __pychache__
 *.virtual_documents
 *.ipynb_checkpoints
 config.py
+.DS_Store/
+.ipynb_checkpoints/

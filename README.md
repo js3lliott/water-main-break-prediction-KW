@@ -13,7 +13,7 @@ As a disclaimer, this project is subject to frequent iterations and edits as I r
 
 Navigate to any notebook you want! The first few are data processing and feature engineering notebooks, feel free to skip those if you'd like. The ones that contain the meat of the project are the EDA notebook and the modeling notebook.
 
-- [Initial Pre-processing](https://nbviewer.org/github/js3lliott/water-main-break-prediction-KW/blob/main/nbs/initial_preprocessing.ipynb)
-- [Feature Engineering](https://nbviewer.org/github/js3lliott/water-main-break-prediction-KW/blob/main/nbs/feature_eng_preprocessing.ipynb)
-- [Exploratory Data Analysis](https://nbviewer.org/github/js3lliott/water-main-break-prediction-KW/blob/main/nbs/water_main_heatmap.ipynb)
+- [Initial Pre-processing](https://nbviewer.org/github/js3lliott/water-main-break-prediction-KW/blob/main/nbs/01_initial_preprocessing.ipynb)
+- [Feature Engineering](https://nbviewer.org/github/js3lliott/water-main-break-prediction-KW/blob/main/nbs/02_feature_eng_preprocessing.ipynb)
+- [Exploratory Data Analysis](https://nbviewer.org/github/js3lliott/water-main-break-prediction-KW/blob/main/nbs/03_water_main_heatmap.ipynb)
 - [Modeling]()

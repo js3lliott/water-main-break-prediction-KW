@@ -4,6 +4,6 @@ __pychache__
 *.virtual_documents
 *.ipynb_checkpoints
 config.py
-high-res-KW-water-infrastructure.png
-KW-water-infrastructure.png
+/data/KW-water-infrastructure.png
+/data/KW-water-infrastructure.png
 toronto_data

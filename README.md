@@ -16,4 +16,4 @@ Navigate to any notebook you want! The first few are data processing and feature
 - [Initial Pre-processing](https://nbviewer.org/github/js3lliott/water-main-break-prediction-KW/blob/main/nbs/01_initial_preprocessing.ipynb)
 - [Feature Engineering](https://nbviewer.org/github/js3lliott/water-main-break-prediction-KW/blob/main/nbs/02_feature_eng_preprocessing.ipynb)
 - [Exploratory Data Analysis](https://nbviewer.org/github/js3lliott/water-main-break-prediction-KW/blob/main/nbs/03_water_main_heatmap.ipynb)
-- [Modeling]()
+- [Modeling](https://nbviewer.org/github/js3lliott/water-main-break-prediction-KW/blob/main/nbs/04_baseline_model.ipynb)

@@ -22,7 +22,7 @@ The question I try to answer with this analysis is - can machine learning be use
 - [Technical Approach in This Project](#technical-approach-in-this-project)
 - [Limitation of This Analysis](#limitation-of-this-analysis)
 - [Data Cleaning](#data-cleaning)
-- [Data Analyzing](#data-analyzing)
+- [Data Analysis](#data-analysis)
 - [Key Takeaways](#key-takeaways)
 - [Business Recommendation](#business-recommendation)
 - [Next Step](#next-step)

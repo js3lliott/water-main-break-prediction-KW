@@ -20,7 +20,7 @@ The question I try to answer with this analysis is - can machine learning be use
 - [Notebook Navigation](#notebook-navigation)
 - [My Approach to Solve this Problem](#my-approach-to-solve-this-problem)
 - [Technical Approach in This Project](#technical-approach-in-this-project)
-- [Limitation of This Analysis](#limitation-of-this-analysis)
+- [Limitations of This Analysis](#limitations-of-this-analysis)
 - [Data Cleaning](#data-cleaning)
 - [Data Analysis](#data-analysis)
 - [Key Takeaways](#key-takeaways)

@@ -33,7 +33,7 @@ geojson==2.5.0
 geomet==0.3.0
 gmaps==0.9.0
 gssapi==1.8.2
-gunicorn @ file:///Users/runner/miniforge3/conda-bld/gunicorn_1666818670755/work
+gunicorn==20.1.0
 idna==3.4
 ipykernel==6.16.1
 ipython==8.5.0

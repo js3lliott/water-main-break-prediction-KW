@@ -23,7 +23,7 @@ def predict():
     result = model.predict(data_df)
     
     # predictions
-    output = {'results': int(result)}
+    output = {'results': float(result)}
     
     # return data
     return jsonify(results=output)

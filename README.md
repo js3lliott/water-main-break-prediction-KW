@@ -1,4 +1,4 @@
-<img src="./data/high-res-KW-water-infrastructure.png" width="800" height="300" class="center">
+<img src="./figures/high-res-KW-water-infrastructure.png" width="800" height="300" class="center">
 
 
 # Water Main Pipe Break/Failure Prediction 🚱 🚧

@@ -1,13 +1,23 @@
 import requests
-from bs4 import BeautifulSoup
 import pandas as pd
+import schedule
+import time
 
-url = 'https://open-kitchenergis.opendata.arcgis.com/datasets/KitchenerGIS::water-main-breaks/about'
-page = requests.get(url)
-soup = BeautifulSoup(page.content, 'html.parser')
+def extract_data():
+    """Extract data from the ArcGIS API."""
 
-# element: <span>Download file previously generated on Dec 17, 2022, 15:40</span>
-link = soup.find('span', text='Download file previously generated on Dec 17, 2022, 15:40').find_parent('a')['href']
+    url = 'https://services1.arcgis.com/qAo1OsXi67t7XgmS/arcgis/rest/services/Water_Main_Breaks/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson'
+    response =  requests.get(url)
+    data = response.json()
 
+    # converting the GeoJSON file to a dataframe and then applying the pandas series method to extract the features from 'properties' key
+    df = pd.DataFrame(data['features'])
+    df = df['properties'].apply(pd.Series)
 
-df = pd.read_csv(link)
+    return df
+
+schedule.every().sunday.at("09:00").do(extract_data)
+
+while True:
+    schedule.run_pending()
+    time.sleep(1)

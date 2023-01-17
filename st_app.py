@@ -46,7 +46,34 @@ st.map(data)
 # create a heatmap of the data points using plotly express and streamlit and don't show the terrain
 st.markdown("## Heatmap of Water Main Breaks")
 st.plotly_chart(px.density_mapbox(data, lat='latitude', lon='longitude', z='num_breaks', radius=10,
-                                    center=dict(lat=43.4643, lon=-80.5204), zoom=10, mapbox_style="open-street-map"))
+                                    center=dict(lat=43.4643, lon=-80.5204), zoom=10, mapbox_style="carto-positron"))
+
+# create a 3d map of the data points using pydeck
+st.markdown("## 3D Map of Water Main Breaks")
+st.write(
+    pdk.Deck(
+        map_style='mapbox://styles/mapbox/light-v9',
+        initial_view_state=pdk.ViewState(
+            latitude=43.4643,
+            longitude=-80.5204,
+            zoom=10,
+            pitch=50,
+        ),
+        layers=[
+            pdk.Layer(
+                'HexagonLayer',
+                data=data,
+                get_position='[longitude, latitude]',
+                get_color='[200, 30, 0, 160]',
+                get_radius=100,
+                elevation_scale=4,
+                elevation_range=[0, 1000],
+                pickable=True,
+                extruded=True,
+            ),
+        ],
+)
+)
 
 
 

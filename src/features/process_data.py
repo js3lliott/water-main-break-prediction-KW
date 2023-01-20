@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
-import extract_data
-from extract_data import extract_data
+import data.extract_data as extract_data
+from data.extract_data import extract_data
 
 
 # Load the data
@@ -63,3 +63,19 @@ def calc_age(df):
     return df
 
 df_copy = calc_age(df_copy)
+
+def process_cat_cols(df):
+    binary_cols = ['positive_pressure_maintaned', 'air_gap_maintaned', 'mechanical_removal', 
+                    'flushing_excavation', 'higher_velocity_flushing', 'anode_installed', 'asset_exists']
+    
+    df = pd.get_dummies(df, columns=binary_cols, drop_first=True)
+
+    # fix the names of the columns modified
+    df = df.rename(columns={'positive_pressure_maintaned_Y': 'positive_pressure_maintaned',
+                            'air_gap_maintaned_Y': 'air_gap_maintaned',
+                            'mechanical_removal_Y': 'mechanical_removal',
+                            'flushing_excavation_Y': 'flushing_excavation',
+                            'higher_velocity_flushing_Y': 'higher_velocity_flushing',
+                            'anode_installed_Y': 'anode_installed',
+                            'asset_exists_Y': 'asset_exists'})
+    return df

@@ -2,6 +2,8 @@ import requests
 import pandas as pd
 import schedule
 import time
+import sqlite3
+import datetime
 
 def extract_data():
     """Extract data from the ArcGIS API."""
@@ -13,8 +15,17 @@ def extract_data():
     # converting the GeoJSON file to a dataframe and then applying the pandas series method to extract the features from 'properties' key
     df = pd.DataFrame(data['features'])
     df = df['properties'].apply(pd.Series)
+    # saving the dataframe to a csv file with the date it was extracted
+    df.to_csv(f'data/raw/break_data_{datetime.datetime.now().strftime("%Y-%m-%d")}.csv', index=False)
+
+    # saving the dataframe to a sqlite database
+    conn = sqlite3.connect('data/processed/break_data.db')
+    df.to_sql('break_data', conn, if_exists='replace', index=False)
 
     return df
+
+
+# extract_data()
 
 schedule.every().sunday.at("09:00").do(extract_data)
 

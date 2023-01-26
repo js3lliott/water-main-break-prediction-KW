@@ -45,6 +45,7 @@ GitPython==3.1.30
 gmaps==0.9.0
 greenlet==2.0.1
 gssapi==1.8.2
+gunicorn @ file:///Users/runner/miniforge3/conda-bld/gunicorn_1666818670755/work
 idna==3.4
 importlib-metadata==5.2.0
 ipykernel==6.16.1

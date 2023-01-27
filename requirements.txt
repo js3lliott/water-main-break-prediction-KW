@@ -66,7 +66,6 @@ jupyterlab-widgets==3.0.3
 jupyterlab_server==2.16.2
 keyring==21.7.0
 kiwisolver==1.4.4
-krb5==0.4.1
 lerc==0.1.0
 llvmlite==0.39.1
 lxml==4.9.1

@@ -3,7 +3,7 @@
 
 # Water Main Pipe Break/Failure Prediction 🚱 🚧
 
-Check it out here!
+
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://pipe-break-prediction.streamlit.app/)
 
 ## Introduction to the Project

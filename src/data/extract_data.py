@@ -17,18 +17,20 @@ def extract_data():
     df = df['properties'].apply(pd.Series)
     # saving the dataframe to a csv file with the date it was extracted
     df.to_csv(f'data/raw/break_data_{datetime.datetime.now().strftime("%Y-%m-%d")}.csv', index=False)
+    
 
-    # saving the dataframe to a sqlite database
-    conn = sqlite3.connect('data/processed/break_data.db')
+    # saving the dataframe to a sqlite database and replacing the older data
+    conn = sqlite3.connect('data/raw/break_data.db')
     df.to_sql('break_data', conn, if_exists='replace', index=False)
+    conn.close()
 
     return df
 
 
-# extract_data()
+extract_data()
 
-schedule.every().sunday.at("09:00").do(extract_data)
+# schedule.every().sunday.at("09:00").do(extract_data)
 
-while True:
-    schedule.run_pending()
-    time.sleep(1)
+# while True:
+#     schedule.run_pending()
+#     time.sleep(1)

@@ -38,9 +38,6 @@ def load_data():
 
 data = load_data()
 
-# create a dropdown menu to select the graph to display
-st.selectbox("Select a graph", ["Scatterplot", "Heatmap"])
-
 
 st.markdown("## Scatterplot of Water Main Breaks")
 # have each of the points labeled with their attributes

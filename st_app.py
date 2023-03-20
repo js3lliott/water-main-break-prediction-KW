@@ -61,7 +61,7 @@ if page == "Home":
     st.write(data)
 elif page == "Scatterplot":
     st.header("Scatterplot of Water Main Breaks")
-    st.write("This scatterplot shows the location of water main breaks in Kitchener-Waterloo. Each location is a different water main break incident.")
+    st.write("This scatterplot shows the location of water main breaks in Kitchener-Waterloo. Each location is a unique water main break incident.")
     st.map(data)
 elif page == "Heatmap":
     st.header("Heatmap of Water Main Breaks")

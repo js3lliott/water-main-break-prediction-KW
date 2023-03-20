@@ -1,14 +1,15 @@
 import pandas as pd
 import numpy as np
 import os
+import src
 
-# from src.data.extract_data import extract_data
+from src.data.extract_data import extract_data
 
 
-# Load the data
-# df = extract_data()
+# Load the latest extracted data from the extract_data.py script
+df = extract_data()
 # instead of loading in new data, I'm going to save it for newer predicitons and use old data to process for now
-df = pd.read_csv('data/raw/Nov_10_22_Water_Main_Breaks.csv')
+# df = pd.read_csv('data/raw/Nov_10_22_Water_Main_Breaks.csv')
 
 # colummns to keep
 df = df[['X', 'Y', 'INCIDENT_DATE',

@@ -9,7 +9,6 @@ import plotly.express as px
 DATA_PATH = ("data/processed/cleaned_break_data.csv")
 
 st.title("Water Main Breaks in Kitchener-Waterloo")
-st.markdown("This map shows the location of water main breaks in Kitchener-Waterloo. The data was collected by the City of Kitchener and is available on [Kitchener's Open Data Portal](https://data.kitchener.ca/dataset/water-main-breaks).")
 
 @st.cache(persist=True) # this prevents having to load the data every time there is a change in the dataset
 
@@ -37,80 +36,120 @@ def load_data():
 
 
 data = load_data()
-
-
-st.markdown("## Scatterplot of Water Main Breaks")
-# have each of the points labeled with their attributes
-
-st.map(data)
-
-
-st.markdown("## Heatmap of Water Main Breaks")
-st.plotly_chart(px.density_mapbox(data, lat='latitude', lon='longitude', z='num_breaks', radius=10,
-                                    center=dict(lat=43.4643, lon=-80.5204), zoom=10, mapbox_style="carto-positron"))
-
-
-# load in the model data
-# model_data = pd.read_csv("data/processed/model_data.csv")
-
-# load in the predictions from the baseline model notebook
-# predictions = pd.read_csv("data/processed/predictions.csv")
-
-# load in the final data
-# final_data = pd.read_csv("data/processed/final_data.csv")
-
-# # drop the rows with infinite failure rates
-# inf_values = final_data[final_data['failure_rate'] == np.inf]
-# final_data = final_data.drop(inf_values.index, axis=0)
-
-# final_data.drop(['incident_date', 'asset_year_installed'], axis=1, inplace=True)
-
-# final_X = final_data.drop('failure_rate', axis=1)
-# final_y = final_data['failure_rate']
-
-# X_train, X_test, y_train, y_test = train_test_split(final_X, final_y, test_size=0.2, random_state=42)
-# rf = RandomForestRegressor()
-# rf.fit(X_train, y_train)
-
-# y_pred = rf.predict(X_test)
-
-# lat = X_test['latitude'].values
-# lon = X_test['longitude'].values
-# break_locations = list(zip(lat, lon))
-
 # load in the test data
 test_prediction_data = pd.read_csv("data/processed/test_predict_data.csv")
 
+# create a sidebar menu and put each of the below charts on a new page
+st.sidebar.title("Menu")
+# page = st.sidebar.radio("Go to", ["Home", "Map", "Heatmap", "Predictions", "Predictions by Age", "Predictions by Hexagon Layer"])
 
-st.markdown("## Predicted Water Main Breaks")
-st.plotly_chart(px.density_mapbox(test_prediction_data, lat='latitude', lon='longitude', z='predictions', radius=10,
+page = st.sidebar.radio("Go to", ["Home", "Scatterplot", "Heatmap", "Break Predictions", "Predictions by Age", "Predictions by Hexagon Layer"])
+
+if page == "Home":
+    st.write("""The data was collected by the City of Kitchener and is available on [Kitchener's Open Data Portal](https://data.kitchener.ca/dataset/water-main-breaks).""")
+    st.write(
+    """
+    Water is one of our most precious resources, and the infrastructure that delivers it is often taken for granted. 
+    But what happens when that infrastructure fails? In Kitchener-Waterloo, Canada, the city is collecting data on 
+    water main breaks to better understand and prevent them. And now, we've taken that data and built a machine learning model 
+    that predicts where and when water main breaks are most likely to occur. With this model, we can proactively address potential 
+    issues and prevent costly and disruptive water main breaks before they happen. Are you ready to dive in and explore the exciting 
+    world of predictive analytics for water infrastructure? Let's get started.
+
+    When you're ready to explore the data, use the menu on the left to navigate to the different pages.
+    """
+)
+    st.write(data)
+elif page == "Scatterplot":
+    st.header("Scatterplot of Water Main Breaks")
+    st.write("This scatterplot shows the location of water main breaks in Kitchener-Waterloo. The size of the points is proportional to the number of breaks at that location.")
+    st.map(data)
+elif page == "Heatmap":
+    st.header("Heatmap of Water Main Breaks")
+    st.write("This heatmap shows the location of water main breaks in Kitchener-Waterloo. The darker the colour, the more breaks at that location.")
+    st.plotly_chart(px.density_mapbox(data, lat='latitude', lon='longitude', z='num_breaks', radius=10,
+                                    center=dict(lat=43.4643, lon=-80.5204), zoom=10, mapbox_style="carto-positron"))
+elif page == "Break Predictions":
+    st.header("Predicted Water Main Breaks")
+    st.write("This heatmap shows the predicted location of water main breaks in Kitchener-Waterloo. The darker the colour, the more breaks at that location.")
+    st.plotly_chart(px.density_mapbox(test_prediction_data, lat='latitude', lon='longitude', z='predictions', radius=10,
+                                    center=dict(lat=43.4643, lon=-80.5204), zoom=10, mapbox_style="carto-positron"))
+elif page == "Predictions by Age":
+    st.header("Predicted Water Main Breaks by Age")
+    st.write("This heatmap shows the predicted location of water main breaks in Kitchener-Waterloo. The darker the colour, the more breaks at that location. The animation shows the predicted breaks by age of the pipe.")
+    st.plotly_chart(px.density_mapbox(test_prediction_data, lat='latitude', lon='longitude', z='predictions', radius=10,
+                                    center=dict(lat=43.4643, lon=-80.5204), zoom=10, mapbox_style="carto-positron", animation_frame=test_prediction_data['age_at_break'].sort_values(ascending=True)))
+elif page == "Predictions by Hexagon Layer":
+    st.header("Predicted Water Main Breaks by Hexagon Layer")
+    st.write("This heatmap is a fun visual that shows the pipe breaks as a hexagonal point. The darker and higher the hexagon, the more breaks occurred at that location")
+    st.pydeck_chart(pdk.Deck(
+        map_style='mapbox://styles/mapbox/light-v9',
+        initial_view_state=pdk.ViewState(
+            latitude=43.4643,
+            longitude=-80.5204,
+            zoom=10,
+            pitch=50,
+        ),
+        layers=[
+            pdk.Layer(
+                'HexagonLayer',
+                data=test_prediction_data,
+                get_position='[longitude, latitude]',
+                radius=150,
+                elevation_scale=4,
+                elevation_range=[0, 1000],
+                pickable=True,
+                extruded=True,
+            ),
+        ],
+    ))
+
+
+# st.markdown("## Scatterplot of Water Main Breaks")
+# have each of the points labeled with their attributes
+def scatterplot(data):
+    st.plotly_chart(px.scatter_mapbox(data, lat='latitude', lon='longitude', color='year', size='num_breaks', color_continuous_scale=px.colors.cyclical.IceFire, size_max=15, zoom=10, mapbox_style="carto-positron"))
+# st.map(data)
+
+
+# st.markdown("## Heatmap of Water Main Breaks")
+def heatmap(data):
+    st.plotly_chart(px.density_mapbox(data, lat='latitude', lon='longitude', z='num_breaks', radius=10,
                                     center=dict(lat=43.4643, lon=-80.5204), zoom=10, mapbox_style="carto-positron"))
 
-st.markdown("## Predicted Water Main Breaks by Age")
-st.plotly_chart(px.density_mapbox(test_prediction_data, lat='latitude', lon='longitude', z='predictions', radius=10,
+
+# st.markdown("## Predicted Water Main Breaks")
+def break_predictions(data):
+    st.plotly_chart(px.density_mapbox(test_prediction_data, lat='latitude', lon='longitude', z='predictions', radius=10,
+                                    center=dict(lat=43.4643, lon=-80.5204), zoom=10, mapbox_style="carto-positron"))
+
+# st.markdown("## Predicted Water Main Breaks by Age")
+def break_predictions_by_age(data):
+    st.plotly_chart(px.density_mapbox(test_prediction_data, lat='latitude', lon='longitude', z='predictions', radius=10,
                                     center=dict(lat=43.4643, lon=-80.5204), zoom=10, mapbox_style="carto-positron", animation_frame=test_prediction_data['age_at_break'].sort_values(ascending=True)))
 
 
 # create a hexagon layer map for the predicted water main breaks and make things translucent
-st.markdown("## Predicted Water Main Breaks")
-st.pydeck_chart(pdk.Deck(
-    map_style='mapbox://styles/mapbox/light-v9',
-    initial_view_state=pdk.ViewState(
-        latitude=43.4643,
-        longitude=-80.5204,
-        zoom=10,
-        pitch=50,
-    ),
-    layers=[
-        pdk.Layer(
-            'HexagonLayer',
-            data=test_prediction_data,
-            get_position='[longitude, latitude]',
-            radius=150,
-            elevation_scale=4,
-            elevation_range=[0, 1000],
-            pickable=True,
-            extruded=True,
+# st.markdown("## Predicted Water Main Breaks")
+def hexagon_layer(data):
+    st.pydeck_chart(pdk.Deck(
+        map_style='mapbox://styles/mapbox/light-v9',
+        initial_view_state=pdk.ViewState(
+            latitude=43.4643,
+            longitude=-80.5204,
+            zoom=10,
+            pitch=50,
         ),
-    ],
-))
+        layers=[
+            pdk.Layer(
+                'HexagonLayer',
+                data=test_prediction_data,
+                get_position='[longitude, latitude]',
+                radius=150,
+                elevation_scale=4,
+                elevation_range=[0, 1000],
+                pickable=True,
+                extruded=True,
+            ),
+        ],
+    ))

@@ -41,7 +41,6 @@ test_prediction_data = pd.read_csv("data/processed/test_predict_data.csv")
 
 # create a sidebar menu and put each of the below charts on a new page
 st.sidebar.title("Menu")
-# page = st.sidebar.radio("Go to", ["Home", "Map", "Heatmap", "Predictions", "Predictions by Age", "Predictions by Hexagon Layer"])
 
 page = st.sidebar.radio("Go to", ["Home", "Scatterplot", "Heatmap", "Break Predictions", "Predictions by Age", "Predictions by Hexagon Layer"])
 
@@ -62,7 +61,7 @@ if page == "Home":
     st.write(data)
 elif page == "Scatterplot":
     st.header("Scatterplot of Water Main Breaks")
-    st.write("This scatterplot shows the location of water main breaks in Kitchener-Waterloo. The size of the points is proportional to the number of breaks at that location.")
+    st.write("This scatterplot shows the location of water main breaks in Kitchener-Waterloo. Each location is a different water main break incident.")
     st.map(data)
 elif page == "Heatmap":
     st.header("Heatmap of Water Main Breaks")
@@ -82,56 +81,6 @@ elif page == "Predictions by Age":
 elif page == "Predictions by Hexagon Layer":
     st.header("Predicted Water Main Breaks by Hexagon Layer")
     st.write("This heatmap is a fun visual that shows the pipe breaks as a hexagonal point. The darker and higher the hexagon, the more breaks occurred at that location")
-    st.pydeck_chart(pdk.Deck(
-        map_style='mapbox://styles/mapbox/light-v9',
-        initial_view_state=pdk.ViewState(
-            latitude=43.4643,
-            longitude=-80.5204,
-            zoom=10,
-            pitch=50,
-        ),
-        layers=[
-            pdk.Layer(
-                'HexagonLayer',
-                data=test_prediction_data,
-                get_position='[longitude, latitude]',
-                radius=150,
-                elevation_scale=4,
-                elevation_range=[0, 1000],
-                pickable=True,
-                extruded=True,
-            ),
-        ],
-    ))
-
-
-# st.markdown("## Scatterplot of Water Main Breaks")
-# have each of the points labeled with their attributes
-def scatterplot(data):
-    st.plotly_chart(px.scatter_mapbox(data, lat='latitude', lon='longitude', color='year', size='num_breaks', color_continuous_scale=px.colors.cyclical.IceFire, size_max=15, zoom=10, mapbox_style="carto-positron"))
-# st.map(data)
-
-
-# st.markdown("## Heatmap of Water Main Breaks")
-def heatmap(data):
-    st.plotly_chart(px.density_mapbox(data, lat='latitude', lon='longitude', z='num_breaks', radius=10,
-                                    center=dict(lat=43.4643, lon=-80.5204), zoom=10, mapbox_style="carto-positron"))
-
-
-# st.markdown("## Predicted Water Main Breaks")
-def break_predictions(data):
-    st.plotly_chart(px.density_mapbox(test_prediction_data, lat='latitude', lon='longitude', z='predictions', radius=10,
-                                    center=dict(lat=43.4643, lon=-80.5204), zoom=10, mapbox_style="carto-positron"))
-
-# st.markdown("## Predicted Water Main Breaks by Age")
-def break_predictions_by_age(data):
-    st.plotly_chart(px.density_mapbox(test_prediction_data, lat='latitude', lon='longitude', z='predictions', radius=10,
-                                    center=dict(lat=43.4643, lon=-80.5204), zoom=10, mapbox_style="carto-positron", animation_frame=test_prediction_data['age_at_break'].sort_values(ascending=True)))
-
-
-# create a hexagon layer map for the predicted water main breaks and make things translucent
-# st.markdown("## Predicted Water Main Breaks")
-def hexagon_layer(data):
     st.pydeck_chart(pdk.Deck(
         map_style='mapbox://styles/mapbox/light-v9',
         initial_view_state=pdk.ViewState(

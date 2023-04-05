@@ -11,7 +11,7 @@ DATA_PATH = ("data/processed/cleaned_break_data.csv")
 st.set_page_config(layout="wide")  # Set layout to wide mode
 
 # Add a custom header with an image
-header_container = st.beta_container()
+header_container = st.container()
 with header_container:
     st.markdown("<h1 style='text-align: center; color: #4A4A4A;'>Water Main Breaks in Kitchener-Waterloo</h1>", unsafe_allow_html=True)
     st.markdown("<h3 style='text-align: center;'>A Streamlit app to visualize and predict water main breaks</h3>", unsafe_allow_html=True)

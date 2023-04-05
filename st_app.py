@@ -58,11 +58,15 @@ if page == "Home":
     When you're ready to explore the data, use the menu on the left to navigate to the different pages.
     """
 )
-    st.write(data)
+    # st.write(data)
+    # insert the break_map image
+    st.image("images/break_map.png", use_column_width=True)
+
 elif page == "Scatterplot":
     st.header("Scatterplot of Water Main Breaks")
     st.write("This scatterplot shows the location of water main breaks in Kitchener-Waterloo. Each location is a unique water main break incident.")
-    st.map(data)
+    # show the scatterplot but with smaller points
+    st.plotly_chart(px.scatter_mapbox(data, lat='latitude', lon='longitude', zoom=10, mapbox_style="carto-positron"))
 elif page == "Heatmap":
     st.header("Heatmap of Water Main Breaks")
     st.write("This heatmap shows the location of water main breaks in Kitchener-Waterloo. The darker the colour, the more breaks at that location.")

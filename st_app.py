@@ -60,7 +60,7 @@ if page == "Home":
 )
     # st.write(data)
     # insert the break_map image
-    st.image("images/break_map.png", use_column_width=True)
+    st.image("figures/break_map.png", use_column_width=True)
 
 elif page == "Scatterplot":
     st.header("Scatterplot of Water Main Breaks")

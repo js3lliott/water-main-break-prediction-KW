@@ -4,24 +4,30 @@ import numpy as np
 import pydeck as pdk
 import plotly.express as px
 
-# st.set_page_config(layout="wide")
-
 DATA_PATH = ("data/processed/cleaned_break_data.csv")
 
-st.title("Water Main Breaks in Kitchener-Waterloo")
+# st.title("Water Main Breaks in Kitchener-Waterloo")
+
+st.set_page_config(layout="wide")  # Set layout to wide mode
+
+# Add a custom header with an image
+header_container = st.beta_container()
+with header_container:
+    st.markdown("<h1 style='text-align: center; color: #4A4A4A;'>Water Main Breaks in Kitchener-Waterloo</h1>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align: center;'>A Streamlit app to visualize and predict water main breaks</h3>", unsafe_allow_html=True)
+
 
 @st.cache(persist=True) # this prevents having to load the data every time there is a change in the dataset
-
 def load_data():
     data = pd.read_csv(DATA_PATH, parse_dates=['INCIDENT_DATE'])
-    data.dropna(subset=['LATITUDE', 'LONGITUDE', 'ASSET_EXISTS'], inplace=True)
+    data = data.dropna(subset=['LATITUDE', 'LONGITUDE', 'ASSET_EXISTS'])
     data = data[data['ASSET_EXISTS'] != 'N']
     data['INCIDENT_DATE'] = pd.to_datetime(data['INCIDENT_DATE'], format='%Y-%m-%d').dt.date
-    
+
     data['year'] = pd.DatetimeIndex(data['INCIDENT_DATE']).year
     lowercase = lambda x: str(x).lower()
     data.rename(lowercase, axis='columns', inplace=True)
-    
+
     num_breaks = {}
     for pipe in data['assetid']:
         if pipe in num_breaks:
@@ -29,7 +35,7 @@ def load_data():
         else:
             num_breaks[pipe] = 1
     data['num_breaks'] = data['assetid'].map(num_breaks)
-    
+
     data['age'] = (np.floor((pd.to_datetime(data['incident_date']) - 
                         pd.to_datetime(data['asset_year_installed'])).dt.days / 365.25)).astype(int)
     return data
@@ -40,7 +46,10 @@ data = load_data()
 test_prediction_data = pd.read_csv("data/processed/test_predict_data.csv")
 
 # create a sidebar menu and put each of the below charts on a new page
-st.sidebar.title("Menu")
+# st.sidebar.title("Menu")
+# Add a custom sidebar header
+st.sidebar.markdown("<h3 style='text-align: left; font-weight: bold;'>Menu</h3>", unsafe_allow_html=True)
+st.sidebar.markdown("---")
 
 page = st.sidebar.radio("Go to", ["Home", "Scatterplot", "Heatmap", "Break Predictions", "Predictions by Age", "Predictions by Hexagon Layer"])
 
@@ -60,7 +69,7 @@ if page == "Home":
 )
     # st.write(data)
     # insert the break_map image
-    st.image("figures/break_map.png", use_column_width=True)
+    st.image("figures/break_map.png")
 
 elif page == "Scatterplot":
     st.header("Scatterplot of Water Main Breaks")

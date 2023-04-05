@@ -106,7 +106,7 @@ def calc_failure_rate(df):
     return df
 
 
-def process_data(df):
+def process_data(df):  # sourcery skip: inline-immediately-returned-variable
     """Process the data"""
     # lowercase the cols
     df.columns = df.columns.str.lower()

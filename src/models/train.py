@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 
+# import the data and features from the src folder
+from src.data.fetch_data import fetch_data
 from src.features.process_data import process_data
 
 import sklearn

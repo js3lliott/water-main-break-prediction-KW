@@ -1,7 +1,9 @@
 import pandas as pd
 import numpy as np
-import data.extract_data as extract_data
-from data.extract_data import extract_data
+import os
+import src
+
+from src.data.fetch_data import fetch_data
 
 
 # Load the data

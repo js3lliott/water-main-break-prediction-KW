@@ -2,7 +2,6 @@ alembic==1.9.2
 altair==4.2.0
 anyio==3.6.2
 appnope==0.1.3
-arcgis==2.0.0
 argon2-cffi==21.3.0
 argon2-cffi-bindings==21.2.0
 arrow==1.2.3
@@ -44,8 +43,7 @@ gitdb==4.0.10
 GitPython==3.1.30
 gmaps==0.9.0
 greenlet==2.0.1
-gssapi==1.8.2
-# gunicorn @ file:///Users/runner/miniforge3/conda-bld/gunicorn_1666818670755/work
+gunicorn==20.1.0
 idna==3.4
 importlib-metadata==5.2.0
 ipykernel==6.16.1
@@ -68,7 +66,6 @@ jupyterlab-widgets==3.0.3
 jupyterlab_server==2.16.2
 keyring==21.7.0
 kiwisolver==1.4.4
-krb5==0.4.1
 lerc==0.1.0
 llvmlite==0.39.1
 lxml==4.9.1
@@ -116,7 +113,6 @@ pyrsistent==0.18.1
 pyshp==2.3.1
 python-certifi-win32==1.6.1
 python-dateutil==2.8.2
-python-gssapi==0.6.4
 python-slugify==7.0.0
 pytz==2022.5
 pytz-deprecation-shim==0.1.0.post0
@@ -124,7 +120,6 @@ PyYAML==6.0
 pyzmq==24.0.1
 querystring-parser==1.2.4
 requests==2.28.1
-requests-gssapi==1.2.3
 requests-ntlm==1.1.0
 requests-oauthlib==1.3.1
 requests-toolbelt==0.10.1

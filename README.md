@@ -3,6 +3,9 @@
 
 # Water Main Pipe Break/Failure Prediction 🚱 🚧
 
+
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://pipe-break-prediction.streamlit.app/)
+
 ## Introduction to the Project
 
 This is a self-curated project, that was born out of coming across open source data on local water main breaks and wondering how can a phenomenon like this be predicted, or if they     could be predicted at all!

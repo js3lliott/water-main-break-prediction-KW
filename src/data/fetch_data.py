@@ -3,8 +3,14 @@ import pandas as pd
 import geopandas as gpd
 import urllib.parse
 import requests
+import sqlite3
+import datetime
+
+from prefect import task, flow
+from prefect.server.schemas.schedules import CronSchedule
 
 # formerly called query_arcgis_feature_server
+@task
 def fetch_data(url_feature_server=''):
     '''
     This function downloads all of the features available on a given ArcGIS 
@@ -158,11 +164,59 @@ def fetch_data(url_feature_server=''):
     
     return geodata_final
 
-url_1 = 'https://services1.arcgis.com/qAo1OsXi67t7XgmS/arcgis/rest/services/Water_Main_Breaks/FeatureServer/0/'
-breaks = fetch_data(url_1)
 
-url_2 = 'https://services1.arcgis.com/qAo1OsXi67t7XgmS/arcgis/rest/services/Water_Mains/FeatureServer/0/'
-mains = fetch_data(url_2)
+@task
+def load_data_to_sqlite(df, table_name, db_name='water_data.db'):
+    # create a SQLite database and connect to it
+    conn = sqlite3.connect(db_name)
+    df.to_sql(table_name, conn, if_exists='replace', index=False)
+    conn.close()
 
-breaks.to_csv('data/raw/breaks.csv', index=False)
-mains.to_csv('data/raw/mains.csv', index=False)
+@task
+def merge_data(db_name='water_data.db'):
+    conn = sqlite3.connect(db_name)
+    # query the database to perform a left join on the "ROADSEGMENTID" column
+    query = """
+    SELECT *
+    FROM breaks
+    LEFT JOIN mains
+    ON breaks.ROADSEGMENTID = mains.ROADSEGMENTID
+    """
+    merged_data = pd.read_sql(query, conn)
+    conn.close()
+
+    return merged_data
+
+@task
+def convert_to_df(merged_data):
+    return pd.DataFrame(merged_data)
+
+# url_breaks = 'https://services1.arcgis.com/qAo1OsXi67t7XgmS/arcgis/rest/services/Water_Main_Breaks/FeatureServer/0/'
+# breaks = fetch_data(url_breaks)
+
+# url_mains = 'https://services1.arcgis.com/qAo1OsXi67t7XgmS/arcgis/rest/services/Water_Mains/FeatureServer/0/'
+# mains = fetch_data(url_mains)
+
+# schedule = CronSchedule("0 0 * * SUN")
+
+@flow(name='water-main-breaks')
+def fetch_and_load_data():
+    # fetch data from the two data sources
+    url_breaks = 'https://services1.arcgis.com/qAo1OsXi67t7XgmS/arcgis/rest/services/Water_Main_Breaks/FeatureServer/0/'
+    url_mains = 'https://services1.arcgis.com/qAo1OsXi67t7XgmS/arcgis/rest/services/Water_Mains/FeatureServer/0/'
+    breaks_data = fetch_data(url_breaks)
+    mains_data = fetch_data(url_mains)
+
+    # Load the fetched data into a SQLite database
+    load_data_to_sqlite(breaks_data, 'breaks')
+    load_data_to_sqlite(mains_data, 'mains')
+
+    # Merge the data
+    merged_data = merge_data()
+
+    # Convert the merged data to a DataFrame
+    df = convert_to_df(merged_data)
+
+    return df
+
+fetch_and_load_data()

@@ -3,7 +3,11 @@ import numpy as np
 import src
 
 # import the data and features from the src folder
+<<<<<<< HEAD
+from src.data.fetch_data import fetch_data
+=======
 from src.data.extract_data import extract_data
+>>>>>>> 4649fdb0e1726d876555435d5b0a4ea8f52c024e
 from src.features.process_data import process_data
 
 # from data import extract_data

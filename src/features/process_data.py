@@ -3,7 +3,11 @@ import numpy as np
 import os
 import src
 
+<<<<<<< HEAD
+from src.data.fetch_data import fetch_data
+=======
 from src.data.extract_data import extract_data
+>>>>>>> 4649fdb0e1726d876555435d5b0a4ea8f52c024e
 
 
 # Load the latest extracted data from the extract_data.py script

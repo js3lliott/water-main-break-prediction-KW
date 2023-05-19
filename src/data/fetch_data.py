@@ -161,6 +161,9 @@ def fetch_data(url_feature_server=''):
         n_times = geodata_temp['temp'].values[i]
         print('WARNING! The following ObjectID is included multiple times in'
               f'the final GeoDataFrame: ObjectID={this_id}\tOccurrences={n_times}')
+        
+    # drop geometry column
+    geodata_final = geodata_final.drop(columns='geometry')
     
     return geodata_final
 
@@ -185,11 +188,13 @@ def merge_data(db_name='water_data.db'):
     merged_data = pd.read_sql(query, conn)
     conn.close()
 
+
     return merged_data
 
 @task
-def convert_to_df(merged_data):
-    return pd.DataFrame(merged_data)
+def convert_data(merged_data):
+    # convert data to csv file and move it to data/raw
+    merged_data.to_csv('data/raw/water_data.csv', index=False)
 
 # url_breaks = 'https://services1.arcgis.com/qAo1OsXi67t7XgmS/arcgis/rest/services/Water_Main_Breaks/FeatureServer/0/'
 # breaks = fetch_data(url_breaks)
@@ -215,7 +220,7 @@ def fetch_and_load_data():
     merged_data = merge_data()
 
     # Convert the merged data to a DataFrame
-    df = convert_to_df(merged_data)
+    df = convert_data(merged_data)
 
     return df
 

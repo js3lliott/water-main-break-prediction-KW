@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/jordansamek/Desktop/Projects/water-main-break-prediction-KW/mlruns/0/cf2de5581243458b90501dd06eff40ed/artifacts
+end_time: 1677107374157
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: cf2de5581243458b90501dd06eff40ed
+run_name: exultant-dog-959
+run_uuid: cf2de5581243458b90501dd06eff40ed
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1677107374139
+status: 4
+tags: []
+user_id: jordansamek

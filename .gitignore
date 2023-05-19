@@ -1,9 +1,8 @@
 *.DS_Store
 *.ipynb_checkpoints/*.ipynb
-__pychache__
+nbs/__pycache__
 *.virtual_documents
-*.ipynb_checkpoints
+.ipynb_checkpoints
 config.py
-/data/KW-water-infrastructure.png
-/data/KW-water-infrastructure.png
 toronto_data
+.vscode

@@ -216,6 +216,7 @@ def fetch_and_load_data():
     breaks_data['latitude'] = breaks_data['geometry'].apply(lambda p: p.y)
 
     breaks_data.drop(columns=['geometry'], inplace=True)
+    mains_data.drop(columns=['geometry'], inplace=True)
 
     # Load the fetched data into a SQLite database
     load_data_to_sqlite(breaks_data, 'breaks')

@@ -218,6 +218,9 @@ def fetch_and_load_data():
     breaks_data.drop(columns=['geometry'], inplace=True)
     mains_data.drop(columns=['geometry'], inplace=True)
 
+    breaks_data['INCIDENTDATE'] = pd.to_datetime(breaks_data['INCIDENTDATE'])
+    mains_data['INSTALLATION_DATE'] = pd.to_datetime(mains_data['INSTALLATION_DATE'])
+
     # Load the fetched data into a SQLite database
     load_data_to_sqlite(breaks_data, 'breaks')
     load_data_to_sqlite(mains_data, 'mains')

@@ -162,8 +162,8 @@ def fetch_data(url_feature_server=''):
         print('WARNING! The following ObjectID is included multiple times in'
               f'the final GeoDataFrame: ObjectID={this_id}\tOccurrences={n_times}')
         
-    # drop geometry column
-    geodata_final = geodata_final.drop(columns='geometry')
+    # # drop geometry column
+    # geodata_final = geodata_final.drop(columns='geometry')
     
     return geodata_final
 

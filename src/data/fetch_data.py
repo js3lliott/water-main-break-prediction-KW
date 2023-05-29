@@ -212,6 +212,11 @@ def fetch_and_load_data():
     breaks_data = fetch_data(url_breaks)
     mains_data = fetch_data(url_mains)
 
+    breaks_data['longitude'] = breaks_data['geometry_x'].apply(lambda p: p.x)
+    breaks_data['latitude'] = breaks_data['geometry_x'].apply(lambda p: p.y)
+
+    breaks_data.drop(columns=['geometry'], inplace=True)
+
     # Load the fetched data into a SQLite database
     load_data_to_sqlite(breaks_data, 'breaks')
     load_data_to_sqlite(mains_data, 'mains')

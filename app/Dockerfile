@@ -1,7 +1,7 @@
 # Build image
 FROM python:3.10.6-slim-buster AS build
 
-WORKDIR /water-main-break-prediction-KW
+WORKDIR /app
 
 COPY requirements.txt .
 
@@ -10,7 +10,7 @@ RUN pip install --user --no-cache-dir -r requirements.txt
 # Final image
 FROM python:3.10.6-slim-buster
 
-WORKDIR /water-main-break-prediction-KW
+WORKDIR /app
 
 COPY --from=build /root/.local /root/.local
 

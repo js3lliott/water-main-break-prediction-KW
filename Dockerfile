@@ -18,6 +18,4 @@ RUN pip install --user --no-cache-dir -r requirements.txt
 
 EXPOSE $PORT
 
-HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
-
 ENTRYPOINT ["streamlit", "run", "st_app.py", "--server.port=$PORT", "--server.address=0.0.0.0"]

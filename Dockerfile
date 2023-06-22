@@ -5,6 +5,8 @@ WORKDIR /app
 
 COPY requirements.txt .
 
+COPY st_app.py .
+
 RUN pip install -r requirements.txt
 
-CMD streamlit run st_app.py --server.port=$PORT --server.address=0.0.0.0
+CMD streamlit run st_app.py --server.port=$PORT

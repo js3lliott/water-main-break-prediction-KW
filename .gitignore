@@ -6,3 +6,6 @@ nbs/__pycache__
 config.py
 toronto_data
 .vscode
+figures
+mlruns
+data

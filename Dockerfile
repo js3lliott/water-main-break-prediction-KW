@@ -16,8 +16,8 @@ COPY . .
 
 RUN pip install --user --no-cache-dir -r requirements.txt
 
-EXPOSE $PORT
+EXPOSE 8501
 
-ENTRYPOINT ["streamlit", "run", "st_app.py", "--server.port=$PORT", "--server.address=0.0.0.0"]
+ENTRYPOINT ["streamlit", "run", "st_app.py", "--server.port=8501", "--server.address=0.0.0.0"]
 
 HEALTHCHECK CMD curl --fail http://localhost:$PORT/healthz || exit 1

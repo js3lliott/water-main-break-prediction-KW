@@ -1,7 +1,7 @@
 # Build image
 FROM python:3.10.6-slim-buster
 
-WORKDIR /app
+WORKDIR /Users/jordansamek/Desktop/Projects/water-main-break-prediction-KW
 
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -12,9 +12,9 @@ RUN apt-get update && apt-get install -y \
 
 ENV PATH="/root/.local/bin:${PATH}"
 
-COPY . .
+COPY requirements.txt .
 
-RUN pip install --user --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 EXPOSE $PORT
 

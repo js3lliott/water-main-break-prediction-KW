@@ -18,6 +18,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 EXPOSE $PORT
 
-ENTRYPOINT ["streamlit", "run", "st_app.py", "--server.port=$PORT", "--server.address=0.0.0.0"]
+CMD streamlit run st_app.py --server.port=$PORT --server.address=0.0.0.0
 
 HEALTHCHECK CMD curl --fail http://localhost:$PORT/healthz || exit 1

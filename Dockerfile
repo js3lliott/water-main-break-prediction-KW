@@ -9,6 +9,8 @@ COPY st_app.py .
 
 COPY cleaned_break_data.csv .
 
+COPY test_predict_data.csv .
+
 RUN pip install -r requirements.txt
 
 CMD streamlit run st_app.py --server.port=$PORT

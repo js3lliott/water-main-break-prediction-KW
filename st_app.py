@@ -43,7 +43,7 @@ def load_data():
 
 data = load_data()
 # load in the test data
-test_prediction_data = pd.read_csv("data/processed/test_predict_data.csv")
+test_prediction_data = pd.read_csv("test_predict_data.csv")
 
 # create a sidebar menu and put each of the below charts on a new page
 # st.sidebar.title("Menu")

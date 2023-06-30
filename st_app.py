@@ -4,7 +4,7 @@ import numpy as np
 import pydeck as pdk
 import plotly.express as px
 
-DATA_PATH = ("../data/processed/cleaned_break_data.csv")
+DATA_PATH = ("cleaned_break_data.csv")
 
 # st.title("Water Main Breaks in Kitchener-Waterloo")
 

@@ -7,9 +7,9 @@ COPY requirements.txt .
 
 COPY st_app.py .
 
-COPY cleaned_break_data.csv .
+COPY data/ data/
 
-COPY test_predict_data.csv .
+COPY figures/ figures/
 
 RUN pip install -r requirements.txt
 

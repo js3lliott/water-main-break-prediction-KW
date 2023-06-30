@@ -7,6 +7,8 @@ COPY requirements.txt .
 
 COPY st_app.py .
 
+COPY cleaned_data.csv .
+
 RUN pip install -r requirements.txt
 
 CMD streamlit run st_app.py --server.port=$PORT

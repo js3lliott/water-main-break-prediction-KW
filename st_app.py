@@ -4,7 +4,7 @@ import numpy as np
 import pydeck as pdk
 import plotly.express as px
 
-DATA_PATH = ("cleaned_break_data.csv")
+DATA_PATH = ("data/processed/cleaned_break_data.csv")
 
 # st.title("Water Main Breaks in Kitchener-Waterloo")
 
@@ -43,7 +43,7 @@ def load_data():
 
 data = load_data()
 # load in the test data
-test_prediction_data = pd.read_csv("test_predict_data.csv")
+test_prediction_data = pd.read_csv("data/processed/test_predict_data.csv")
 
 # create a sidebar menu and put each of the below charts on a new page
 # st.sidebar.title("Menu")

@@ -7,7 +7,7 @@ COPY requirements.txt .
 
 COPY st_app.py .
 
-COPY cleaned_data.csv .
+COPY cleaned_break_data.csv .
 
 RUN pip install -r requirements.txt
 

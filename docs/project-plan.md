@@ -353,9 +353,26 @@ Four pages:
 
 `.github/workflows/refresh.yml` runs Mondays 08:17 UTC (off the hour — scheduled
 workflows cluster at :00 and queue): extract → `dbt build` → score → export the
-app bundle → commit it back to `main`. `dbt build`, not `run`, so the data tests
-gate the commit. On failure it comments on an existing `refresh-failure` issue
-rather than opening a new one every week.
+app bundle → open a PR → auto-merge once CI is green. `dbt build`, not `run`, so
+the data tests gate it. On failure it comments on an existing `refresh-failure`
+issue rather than opening a new one every week.
+
+**Branch protection changed this design.** `main` is protected by a ruleset
+(PR required, `test` must pass, no force-push, no deletion). The original
+workflow pushed straight to `main` and was rejected with `GH013` once that
+landed. The obvious fix — adding the GitHub Actions app as a ruleset bypass
+actor — **is not available on a personal repository**; GitHub rejects it with
+*"Actor GitHub Actions integration must be part of the ruleset source or owner
+organization"*, and an admin-role bypass does not cover `github-actions[bot]`,
+which is not an admin. Verified by dispatching the workflow and reading the
+rejection rather than by assuming.
+
+So the refresh proposes its change like any other contributor. One wrinkle worth
+recording: PRs opened with `GITHUB_TOKEN` deliberately do not fire
+`pull_request` workflows, so the required `test` check would never run and
+auto-merge would wait forever. `ci.yml` therefore also runs on pushes to the
+`data-refresh` branch — required status checks are evaluated against check runs
+on the PR's head SHA regardless of which event produced them.
 
 **The first real refresh immediately caught upstream drift.** The mains layer
 went from 16,207 to 16,209 features and `WATMAINID` stopped being unique: main

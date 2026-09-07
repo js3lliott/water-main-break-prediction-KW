@@ -2,7 +2,13 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    # `data-refresh` is here on purpose. The weekly refresh opens its PR with
+    # GITHUB_TOKEN, and GitHub deliberately does not fire `pull_request`
+    # workflows for those -- it is the anti-recursion rule. Required status
+    # checks are evaluated against check runs on the PR's head SHA regardless of
+    # which event produced them, so running CI on the branch push satisfies the
+    # `test` check and lets auto-merge proceed.
+    branches: [main, data-refresh]
   pull_request:
 
 jobs:

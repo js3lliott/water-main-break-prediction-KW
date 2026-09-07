@@ -349,7 +349,40 @@ Four pages:
 
 **Deploy:** Streamlit Community Cloud (free; the README badge already points there). Drop Heroku — the five repeated Dockerfile commits are a symptom of fighting it. Keep the Dockerfile for local reproducibility only.
 
-### Phase 7 — Orchestration & CI (≈1–2 days)
+### Phase 7 — Orchestration & CI (≈1–2 days) — *done*
+
+`.github/workflows/refresh.yml` runs Mondays 08:17 UTC (off the hour — scheduled
+workflows cluster at :00 and queue): extract → `dbt build` → score → export the
+app bundle → commit it back to `main`. `dbt build`, not `run`, so the data tests
+gate the commit. On failure it comments on an existing `refresh-failure` issue
+rather than opening a new one every week.
+
+**The first real refresh immediately caught upstream drift.** The mains layer
+went from 16,207 to 16,209 features and `WATMAINID` stopped being unique: main
+35020 had been split into a 176 m piece and a 4 m stub, both `ACTIVE`, sharing
+one ID.
+
+That breaks a load-bearing assumption — `WATMAINID` is the key breaks join on
+(`ASSETID → WATMAINID`), so duplicates fan that join out and duplicate the
+pipe-year panel. Exactly the class of bug this project began by fixing, arriving
+from the source rather than from our own SQL.
+
+The fix distinguishes two things the schema conflates: **`OBJECTID` identifies a
+GIS feature; `WATMAINID` identifies a main.** Staging now collapses features to
+one row per main — lengths summed, attributes from the longest piece — and
+carries `feature_count` so the collapse is visible. Verified: 176.26 + 4.27 =
+180.53 m, network total unchanged at 938.26 km.
+
+That aggregation is only safe while splitting is rare, so
+`assert_feature_splitting_stays_rare` fails the build above 1%. Past that, the
+right answer is a separate feature-grain model rather than a quiet
+aggregation — and that should be a deliberate decision, not a default.
+
+Also in this phase: `ml.score --no-challenger` no longer imports lightgbm at
+all. The shipped ranker is a group-by, so the path that produces the inspection
+list now carries no ML dependency.
+
+#### Original plan
 
 - `.github/workflows/ci.yml` — ruff, pytest, `dbt build` against a seeded fixture DB, on every PR
 - `.github/workflows/refresh.yml` — weekly cron: extract → dbt build → score → publish; opens an issue on failure

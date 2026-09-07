@@ -12,6 +12,10 @@ LightGBM model, which phase 4 found does not beat the lookup table -- it is kept
 so the comparison keeps running on new data rather than being settled once in a
 document. If the challenger starts winning, that is worth knowing.
 
+`--no-challenger` skips it, and skips importing lightgbm at all: the ranker is a
+group-by, so the path that actually produces the inspection list has no ML
+dependency.
+
 The table is written by this module, not by dbt, and lives in its own schema to
 keep that ownership boundary visible.
 """
@@ -29,7 +33,7 @@ import duckdb
 import numpy as np
 import pandas as pd
 
-from ml import features, train
+from ml import features
 from ml.ranker import StratifiedRateRanker
 
 logger = logging.getLogger("ml.score")
@@ -218,6 +222,13 @@ def main(argv: list[str] | None = None) -> int:
 
     challenger_scores, challenger_version = None, None
     if not args.no_challenger:
+        # Imported here, not at module load. The shipped ranker is a group-by
+        # and needs no ML library; only the optional challenger does. Keeping
+        # the import lazy means `--no-challenger` runs without lightgbm
+        # installed, so the production scoring path carries the smaller
+        # dependency surface.
+        from ml import train
+
         model = train.fit_lgbm(panel, "full")
         challenger_scores = train.predict(model, forecast, "full")
         challenger_version = (

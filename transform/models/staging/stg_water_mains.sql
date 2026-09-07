@@ -3,6 +3,18 @@
 -- This is the model that supplies the panel's negative examples. The original
 -- pipeline never used it, so every training row was a pipe that had already
 -- broken.
+--
+-- Grain: one row per WATMAINID, which is NOT one row per source feature.
+-- OBJECTID identifies a GIS feature; WATMAINID identifies the main. The city
+-- sometimes splits one main into several features that keep a shared WATMAINID
+-- -- a weekly refresh caught main 35020 split into a 176 m piece and a 4 m
+-- stub, both ACTIVE, same material, size, install date and road segment.
+--
+-- WATMAINID has to stay the grain because it is the key the break records join
+-- on (breaks.ASSETID -> WATMAINID). Leaving the split features as separate rows
+-- would fan that join out and duplicate the pipe-year panel, which is the exact
+-- class of bug this project started by fixing. So features are collapsed:
+-- lengths summed, attributes taken from the longest piece.
 
 with raw_mains as (
 
@@ -68,6 +80,38 @@ cleaned as (
 
     from latest
 
+),
+
+-- Collapse multi-feature mains. `feature_rank` picks the longest piece as the
+-- attribute donor: it is the one that best characterises the main, and ties
+-- fall back to the object id so the choice is deterministic across runs.
+features_ranked as (
+
+    select
+        *,
+        row_number() over (
+            partition by watmainid order by length_m desc, arcgis_object_id
+        )                                               as feature_rank,
+        count(*) over (partition by watmainid)          as feature_count,
+        sum(length_m) over (partition by watmainid)     as main_total_length_m
+
+    from cleaned
+
+),
+
+collapsed as (
+
+    select
+        * exclude (feature_rank, length_m, length_km),
+
+        -- Total length of the main across all its features. Exposure has to be
+        -- the whole main or the break rate per km is overstated.
+        main_total_length_m                             as length_m,
+        main_total_length_m / 1000.0                    as length_km
+
+    from features_ranked
+    where feature_rank = 1
+
 )
 
 select
@@ -96,4 +140,4 @@ select
     -- they are still valid rows for a per-segment model.
     length_m < 1.0 as is_negligible_length
 
-from cleaned
+from collapsed

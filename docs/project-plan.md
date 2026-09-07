@@ -231,7 +231,14 @@ Effort estimates assume focused part-time work. Total ≈ **3–4 weeks**.
 - [ ] `git rm --cached` the committed data artifacts (`water_data.db`, `cleaned_break_data.csv` at repo root, `test_predict_data.csv`)
 - [ ] Replace `requirements.txt` with `pyproject.toml`, pinned, Python 3.11
 - [ ] Move the existing profile to `docs/data-profile-breaks.md`
-- [ ] Archive current notebooks to `notebooks/archive/` — keep them, they're the project history
+- [x] Archive current notebooks to `notebooks/archive/` — keep them, they're the project history
+
+  *Deferred until the end.* Two of them carried uncommitted local changes for
+  the whole build, so moving files under them would have been disruptive. Done
+  once the rest had landed: outputs stripped with `nbstripout` first (17 MB →
+  128 KB; `02_baseline_eda.ipynb` alone went 13 MB → 16 KB), verified
+  byte-identical on code, then moved. `make nbstripout` installs the git filter
+  that stops output coming back.
 
 **Done when:** `pip install -e .` succeeds from a clean venv and `git status` is empty after a build.
 

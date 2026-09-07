@@ -6,7 +6,7 @@ PY := .venv/bin/python
 
 .PHONY: help setup extract extract-breaks extract-mains extract-weather \
         deps transform transform-test docs build figures model score \
-        app-data app test lint fmt clean
+        app-data app nbstripout test lint fmt clean
 
 help:
 	@grep -E "^[a-z-]+:.*?## .*$$" $(MAKEFILE_LIST) | sed "s/:.*## /\t/" | expand -t22
@@ -72,6 +72,10 @@ lint:  ## Lint with ruff
 fmt:  ## Auto-format with ruff
 	$(PY) -m ruff format .
 	$(PY) -m ruff check --fix .
+
+nbstripout:  ## Install the git filter that keeps notebook outputs out of commits
+	$(PY) -m pip install -q nbstripout
+	$(PY) -m nbstripout --install --attributes .gitattributes
 
 clean:  ## Remove caches (leaves data/ and .venv alone)
 	find . -name __pycache__ -type d -prune -exec rm -rf {} +

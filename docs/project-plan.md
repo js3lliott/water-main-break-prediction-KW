@@ -127,6 +127,27 @@ A cast iron pipe that broke in 2009 and was replaced with PVC now appears in the
 
 This cannot be fixed with the available data. It can be quantified (compare the material/age mix of unmatched-break pipes vs. matched) and stated plainly. Naming a bias you can't fix is a stronger portfolio signal than a model that pretends it isn't there.
 
+### Update from phase 2: the bias is directly measurable
+
+Building the panel surfaced a sharper form of this than the orphan rate alone. Classifying every break against the inventory gives three outcomes:
+
+| `match_status` | Records | Share |
+|---|---|---|
+| `matched` | 2,106 | 72.0% |
+| `orphan_asset` | 508 | 17.4% |
+| `predecessor_asset` | 311 | 10.6% |
+
+`predecessor_asset` means **the break predates the installation date of the pipe that currently holds that asset ID**. 176 distinct pipes are affected, with a mean install year of **2012 against a network mean of 1993**.
+
+These are not data errors. For every one of those records the break's *own* `ASSET_YEAR_INSTALLED` also postdates the incident, and `reported_material` agrees with the current inventory 98.4% of the time. The break record's `ASSET_*` columns are a denormalised copy of *today's* inventory, refreshed when the pipe was replaced — not a historical record of the pipe that failed.
+
+Two consequences:
+
+1. **`reported_material` / `reported_install_year` / `reported_diameter_mm` are not evidence about the failed pipe** and must never be used as features. The staging model documents this.
+2. **These rows are dated replacement events.** We know a pipe at that location broke in year X and the pipe there now went in at year Y > X. That is the most direct measurement of the replacement process this data contains, and it is what `dim_pipe.replaced_after_break` exposes.
+
+It also means `prior_break_count` must exclude predecessor breaks, or a 2010 PVC segment inherits the failure history of the cast iron it replaced — which would teach the model that new PVC fails constantly. `fct_pipe_year` carries the two counts separately: `prior_break_count` (this pipe) and `predecessor_break_count` (this location).
+
 ---
 
 ## 4. Target architecture

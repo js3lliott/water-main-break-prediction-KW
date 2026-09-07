@@ -1,0 +1,67 @@
+version: 2
+
+models:
+  - name: int_breaks_matched
+    description: >
+      Breaks joined to the inventory on ASSETID -> WATMAINID, with match_status
+      classifying every record. The original pipeline joined on ROADSEGMENTID
+      (up to 45 mains per segment), fanning 2,766 breaks into 10,761 rows.
+    columns:
+      - name: break_incident_id
+        data_tests: [unique, not_null]
+      - name: match_status
+        description: >
+          matched = break on the pipe currently there, after its install.
+          predecessor_asset = break predates that pipe's install (replacement).
+          orphan_asset = ASSETID absent from the inventory entirely.
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ["matched", "predecessor_asset", "orphan_asset", "null_asset_id"]
+
+  - name: int_pipe_year_spine
+    description: >
+      The panel skeleton: one row per pipe per year at risk, from 1997 (or the
+      year after install) to the current year.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [watmainid, panel_year]
+    columns:
+      - name: watmainid
+        data_tests:
+          - not_null
+          - relationships: {to: ref('stg_water_mains'), field: watmainid}
+      - name: panel_year
+        data_tests: [not_null]
+      - name: age_years
+        description: Age at the start of the panel year. Always >= 1 by construction.
+        data_tests:
+          - dbt_utils.accepted_range: {min_value: 1, max_value: 200}
+
+  - name: int_pipe_year_history
+    description: As-of-1-January break history. Every aggregate is bounded strictly below panel_year.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [watmainid, panel_year]
+    columns:
+      - name: prior_break_count
+        description: Breaks on THIS pipe before panel_year. Excludes predecessor breaks.
+        data_tests: [not_null]
+      - name: predecessor_break_count
+        description: Breaks at this location on the pipe that preceded this one.
+        data_tests: [not_null]
+
+  - name: int_pipe_year_breaks
+    description: Observed break counts per pipe-year. The outcome side of the panel.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [watmainid, panel_year]
+
+  - name: int_winter_severity
+    description: Winter severity per season (1 Nov year-1 to 31 Mar year), keyed to panel_year.
+    columns:
+      - name: panel_year
+        data_tests: [unique, not_null]
+      - name: freeze_thaw_days
+        data_tests:
+          - dbt_utils.accepted_range: {min_value: 0, max_value: 151}

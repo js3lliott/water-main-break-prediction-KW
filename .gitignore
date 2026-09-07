@@ -34,10 +34,11 @@ venv/
 .coverage
 htmlcov/
 
-# ---- dbt (phase 2) ----
+# ---- dbt ----
 transform/target/
 transform/dbt_packages/
 transform/logs/
+transform/.user.yml
 
 # ---- secrets ----
 # notebooks/config.py holds live mapbox / gmaps API keys. The pre-existing

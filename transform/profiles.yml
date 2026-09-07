@@ -1,0 +1,16 @@
+# Checked in deliberately: the warehouse is a local DuckDB file rebuilt from
+# parquet, so there are no credentials here and `dbt build` works on a fresh
+# clone with no setup.
+kw_water_risk:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "../data/warehouse.duckdb"
+      threads: 4
+      extensions:
+        - spatial
+    ci:
+      type: duckdb
+      path: ":memory:"
+      threads: 4

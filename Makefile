@@ -5,7 +5,7 @@
 PY := .venv/bin/python
 
 .PHONY: help setup extract extract-breaks extract-mains extract-weather \
-        deps transform transform-test docs build test lint fmt clean
+        deps transform transform-test docs build figures test lint fmt clean
 
 help:
 	@grep -E "^[a-z-]+:.*?## .*$$" $(MAKEFILE_LIST) | sed "s/:.*## /\t/" | expand -t22
@@ -43,6 +43,9 @@ docs:  ## Generate and serve the dbt lineage docs
 build:  ## Full pipeline: extract -> snapshot -> models -> tests
 	$(MAKE) extract
 	cd transform && ../$(PY) -m dbt.cli.main build --profiles-dir .
+
+figures:  ## Regenerate the analysis figures from the marts
+	$(PY) -m analysis.run
 
 test:  ## Run the offline python test suite
 	$(PY) -m pytest

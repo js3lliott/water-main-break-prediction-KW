@@ -53,7 +53,8 @@ pipe as (
         is_oversized,
         is_shallow,
         is_bridge_main,
-        is_cleaned
+        is_cleaned,
+        is_negligible_length
     from {{ ref('dim_pipe') }}
 
 )
@@ -104,6 +105,10 @@ select
     pipe.is_shallow,
     pipe.is_bridge_main,
     pipe.is_cleaned,
+
+    -- Sub-metre GIS connector artifacts. Harmless per-segment, but they must be
+    -- excluded from any length-normalised rate.
+    pipe.is_negligible_length,
 
     -- ---- winter severity (weather-sensitivity model only; see model doc) ----
     winter.freeze_thaw_days,

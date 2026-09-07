@@ -40,6 +40,9 @@ app = [
     "pydeck>=0.9",
     "plotly>=5.20",
 ]
+analysis = [
+    "matplotlib>=3.8",
+]
 dev = [
     "pytest>=8.0",
     "responses>=0.25",
@@ -50,7 +53,7 @@ dev = [
 kw-extract = "extract.run:main"
 
 [tool.setuptools]
-packages = ["extract"]
+packages = ["extract", "analysis"]
 
 [tool.ruff]
 line-length = 100

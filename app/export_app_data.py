@@ -67,10 +67,46 @@ EXPORTS = {
 }
 
 
+# A refresh may legitimately lose a few break records -- the city amends and
+# withdraws incidents -- but not many. A larger drop means a bad extract, and
+# overwriting a good bundle with it would silently degrade the deployed app.
+MAX_ACCEPTABLE_SHRINKAGE = 0.05
+
+
+def check_not_shrunk(output_dir: Path, new_breaks: int, new_pipes: int) -> None:
+    """Refuse to replace an existing bundle with a materially smaller one.
+
+    The extractor already fails on a short read against the server's own count.
+    This is the second line: it catches the case where the server itself returns
+    a truncated or reset layer, which no client-side count check can detect.
+    """
+    existing = output_dir / "breaks.parquet"
+    if not existing.exists():
+        return
+
+    import pandas as pd
+
+    old_breaks = len(pd.read_parquet(existing, columns=["break_incident_id"]))
+    old_pipes = len(pd.read_parquet(output_dir / "pipes.parquet", columns=["watmainid"]))
+
+    for label, old, new in (("breaks", old_breaks, new_breaks), ("pipes", old_pipes, new_pipes)):
+        if old and new < old * (1 - MAX_ACCEPTABLE_SHRINKAGE):
+            raise SystemExit(
+                f"refusing to write the bundle: {label} fell from {old:,} to {new:,} "
+                f"({100 * (old - new) / old:.1f}% drop, tolerance "
+                f"{100 * MAX_ACCEPTABLE_SHRINKAGE:.0f}%). Check the extract before rerunning."
+            )
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Export the app data bundle.")
     parser.add_argument("--warehouse", type=Path, default=DEFAULT_WAREHOUSE)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    parser.add_argument(
+        "--allow-shrinkage",
+        action="store_true",
+        help="skip the guard against replacing the bundle with a much smaller one",
+    )
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)-7s %(message)s")
 
@@ -79,6 +115,15 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
+
+    if not args.allow_shrinkage:
+        with duckdb.connect(str(args.warehouse), read_only=True) as con:
+            check_not_shrunk(
+                args.output_dir,
+                con.sql(f"select count(*) from ({EXPORTS['breaks']})").fetchone()[0],
+                con.sql(f"select count(*) from ({EXPORTS['pipes']})").fetchone()[0],
+            )
+
     total_mb = 0.0
     with duckdb.connect(str(args.warehouse), read_only=True) as con:
         for name, query in EXPORTS.items():

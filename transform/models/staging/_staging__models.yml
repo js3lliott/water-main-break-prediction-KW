@@ -38,6 +38,17 @@ models:
               config: {where: "condition_score is not null"}
       - name: pressure_zone
         data_tests: [not_null]
+      - name: feature_count
+        description: >
+          How many source GIS features share this WATMAINID. Normally 1. The
+          city sometimes splits a main into several features that keep one
+          WATMAINID, and this model collapses them -- lengths summed, attributes
+          from the longest piece -- because WATMAINID is the key breaks join on.
+          assert_feature_splitting_stays_rare fails the build if that stops
+          being an edge case.
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range: {min_value: 1, max_value: 20}
 
   - name: stg_water_main_breaks
     description: >

@@ -57,7 +57,7 @@ dev = [
 kw-extract = "extract.run:main"
 
 [tool.setuptools]
-packages = ["extract", "analysis", "ml"]
+packages = ["extract", "analysis", "ml", "app"]
 
 [tool.ruff]
 line-length = 100
@@ -75,6 +75,13 @@ exclude = [
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.isort]
+# `data_access` is imported bare by the Streamlit pages -- Streamlit puts the
+# entry script's directory on sys.path, and Community Cloud does not install the
+# repo as a package. Declaring it first-party keeps the import block ordered the
+# way the rest of the project is.
+known-first-party = ["extract", "analysis", "ml", "app", "data_access"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -1,0 +1,15 @@
+# Deployment manifest for Streamlit Community Cloud, which builds from this file.
+#
+# It is NOT the development environment -- use `make setup`, which installs the
+# project from pyproject.toml with the dev/ml/transform extras. This file lists
+# only what the deployed app imports at runtime, and must stay in step with the
+# `app` extra in pyproject.toml.
+#
+# The app reads the committed parquet bundle in app/data/, so nothing here
+# touches DuckDB, dbt, LightGBM or the extraction stack.
+streamlit>=1.35
+pydeck>=0.9
+plotly>=5.20
+pandas>=2.2
+pyarrow>=15.0
+numpy>=1.26

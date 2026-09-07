@@ -63,13 +63,9 @@ packages = ["extract", "analysis", "ml", "app"]
 line-length = 100
 target-version = "py311"
 
-# Legacy surfaces are excluded until the phase that rewrites them, so lint
-# failures point at live code rather than at code already scheduled for
-# replacement:
-#   st_app.py   -> replaced in phase 6 (app rebuild)
-#   notebooks/  -> archived in phase 3 (analysis rewrite against the marts)
+# Archived notebooks are excluded from linting. They are frozen history, not
+# maintained code -- see notebooks/archive/README.md for what replaced each one.
 exclude = [
-    "st_app.py",
     "notebooks/",
 ]
 

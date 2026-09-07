@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install
+        # dev  -> pytest, responses, ruff
+        # ml   -> scikit-learn, needed by tests/test_ml_evaluate.py
+        # transform -> dbt, for the project validation step below
+        run: pip install -e ".[dev,ml,transform]"
+
+      - name: Lint
+        run: |
+          ruff check .
+          ruff format --check .
+
+      - name: Test
+        # The suite is fully offline -- every external response is a recorded
+        # fixture -- so CI never depends on the ArcGIS or ECCC services being up.
+        run: pytest -q
+
+      - name: Validate dbt project
+        working-directory: transform
+        # `dbt build` needs the raw parquet, which is not committed (it is
+        # reproducible via `make extract`). `compile` against the in-memory `ci`
+        # target still catches the failures worth catching in review: broken
+        # refs, bad Jinja, models pointing at columns or sources that no longer
+        # exist. The data tests themselves run locally through `make build`.
+        run: |
+          dbt deps --profiles-dir .
+          dbt compile --profiles-dir . --target ci

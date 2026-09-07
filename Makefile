@@ -5,7 +5,7 @@
 PY := .venv/bin/python
 
 .PHONY: help setup extract extract-breaks extract-mains extract-weather \
-        deps transform transform-test docs build figures model test lint fmt clean
+        deps transform transform-test docs build figures model score test lint fmt clean
 
 help:
 	@grep -E "^[a-z-]+:.*?## .*$$" $(MAKEFILE_LIST) | sed "s/:.*## /\t/" | expand -t22
@@ -40,15 +40,19 @@ docs:  ## Generate and serve the dbt lineage docs
 	cd transform && ../$(PY) -m dbt.cli.main docs generate --profiles-dir . && \
 		../$(PY) -m dbt.cli.main docs serve --profiles-dir .
 
-build:  ## Full pipeline: extract -> snapshot -> models -> tests
+build:  ## Full pipeline: extract -> snapshot -> models -> tests -> score
 	$(MAKE) extract
 	cd transform && ../$(PY) -m dbt.cli.main build --profiles-dir .
+	$(MAKE) score
 
 figures:  ## Regenerate the analysis figures from the marts
 	$(PY) -m analysis.run
 
 model:  ## Run the walk-forward modelling evaluation
 	$(PY) -m ml.run
+
+score:  ## Score the forecast year and write the inspection list
+	$(PY) -m ml.score
 
 test:  ## Run the offline python test suite
 	$(PY) -m pytest

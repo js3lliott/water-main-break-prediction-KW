@@ -103,6 +103,67 @@ Both fixed: early stopping now uses AUC on the last three *training* years, with
 4. **No soil, pressure-transient, traffic-loading or work-order cost data.** These are the obvious next features, and their absence is the most likely reason a flexible model cannot beat a three-column lookup.
 5. **Kitchener only.** Waterloo is a separate municipality with its own portal.
 
+## Scoring pipeline (phase 5)
+
+`python -m ml.score` fits the ranker on complete years and scores the **forecast
+year** — one year past the current one, added to the panel spine specifically so
+there are rows to score. An inspection list for a year that is already half over
+is half useless.
+
+Output goes to `main_scores.fct_pipe_risk_score`, written by `ml/score.py` rather
+than dbt and kept in its own schema to make that ownership boundary visible.
+Each run appends, stamped with `scored_at` and a `method_version` derived from a
+hash of the fitted table's own contents.
+
+For 2027, over 15,552 segments and 938 km:
+
+| Budget | Length | Segments | Expected breaks | Share of expected |
+|---|---|---|---|---|
+| 1% | 9.2 km | 62 | 5.2 | 7% |
+| 2% | 18.7 km | 97 | 10.4 | 14% |
+| **5%** | **46.9 km** | **257** | **22.7** | **30%** |
+| 10% | 93.7 km | 620 | 38.3 | 51% |
+
+The 5% row reading 30% is an independent check on the walk-forward `capture@5%`
+of 30.1% — the two are computed by different code paths.
+
+### Explanation, not attribution
+
+A lookup table needs no SHAP. Every score carries its cell, that cell's rate,
+and the evidence beneath it:
+
+| Cell | Segments | km | Rate /100km/yr | Evidence |
+|---|---|---|---|---|
+| 3 prior \| CI \| 1950s | 90 | 17.8 | 56.3 | 123 breaks |
+| 3 prior \| DI \| 1970s | 17 | 3.4 | 48.3 | 21 breaks |
+| 3 prior \| CI \| 1960s | 83 | 16.9 | 43.5 | 102 breaks |
+| 2 prior \| CI \| 1950s | 50 | 7.4 | 41.4 | 78 breaks |
+
+`cell_is_unseen` flags rows whose score is the smoothing prior rather than
+observed history.
+
+### Per-segment rank carries no information
+
+111 cells cover ~15,500 segments, so most of the list is ordered by the
+tiebreak, not the score. Reversing it (longest-first instead of shortest-first)
+moves `capture@5%` from 29.3% to 28.4% across eight years — inside the noise.
+The app must therefore surface the **cell**, never imply that segment #204 is
+riskier than #205.
+
+### Champion and challenger
+
+Both scores are written per pipe. `score_per_100km` is the ranker and is what to
+act on; `challenger_score` is the LightGBM model, kept so the comparison keeps
+running against new data instead of being settled once in this document.
+
+### Drift
+
+Each run compares its score distribution (p50/p90/p99) to the previous run and
+flags a move over 25%. A refit on one more year should barely move; a large jump
+means something upstream changed — a join fanned out, a material got recoded, an
+extract came back short — and the scores should not be acted on until someone
+has looked.
+
 ## Not yet done
 
 Poisson/negative-binomial rate model with a `log(length_km)` offset, and survival models (Weibull AFT, Andersen–Gill) for recurrent events. Both are in the plan; neither is required for the recommendation above, which is that the simple ranker ships.

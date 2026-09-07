@@ -52,6 +52,12 @@ models:
           - dbt_utils.accepted_range: {min_value: 1997, max_value: 2100}
       - name: broke_in_year
         data_tests: [not_null]
+      - name: is_forecast_year
+        description: >
+          The one year past the current year. Features are as-of its 1 January,
+          the outcome is unknown, and is_complete_year excludes it from training
+          and from every rate table. It exists so the scoring pipeline has rows.
+        data_tests: [not_null]
       - name: break_count
         data_tests:
           - not_null

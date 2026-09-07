@@ -36,6 +36,12 @@ winter as (
 
 ),
 
+neighbourhood as (
+
+    select * from {{ ref('int_pipe_year_neighbourhood') }}
+
+),
+
 pipe as (
 
     select
@@ -91,6 +97,15 @@ select
     history.predecessor_break_count,
     history.location_had_earlier_pipe_break,
 
+    -- ---- neighbourhood (the cold-start signal) ----
+    -- Breaks on OTHER pipes within 250 m, as of 1 January. This is what the
+    -- model has to work with for the ~90% of segments that have never broken.
+    neighbourhood.neighbour_breaks_prior_5y,
+    neighbourhood.neighbour_breaks_prior_all,
+    neighbourhood.neighbour_breaks_per_km_5y,
+    neighbourhood.neighbour_pipe_km,
+    neighbourhood.neighbour_pipe_count,
+
     pipe.material,
     pipe.diameter_mm,
     pipe.pressure_zone,
@@ -127,6 +142,9 @@ left join history
 left join outcomes
     on spine.watmainid = outcomes.watmainid
    and spine.panel_year = outcomes.panel_year
+left join neighbourhood
+    on spine.watmainid = neighbourhood.watmainid
+   and spine.panel_year = neighbourhood.panel_year
 left join winter
     on spine.panel_year = winter.panel_year
 left join pipe

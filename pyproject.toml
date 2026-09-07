@@ -31,6 +31,10 @@ ml = [
     "scikit-learn>=1.4",
     "lightgbm>=4.3",
     "statsmodels>=0.14",
+]
+# Not yet used. Survival models (phase 4 remainder) and explainability for the
+# app; kept out of the default ml install so CI stays light.
+ml-extras = [
     "lifelines>=0.28",
     "shap>=0.45",
     "mlflow>=2.12",
@@ -53,7 +57,7 @@ dev = [
 kw-extract = "extract.run:main"
 
 [tool.setuptools]
-packages = ["extract", "analysis"]
+packages = ["extract", "analysis", "ml"]
 
 [tool.ruff]
 line-length = 100

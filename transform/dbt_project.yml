@@ -20,6 +20,11 @@ vars:
   # A pipe enters the panel the year *after* installation, so no row carries a
   # partial year of exposure.
   # A break is a "confirmed main break" only if it is on a main and not cancelled.
+  # Radius for neighbourhood features. Mean segment length is ~58 m, so 250 m
+  # reaches roughly the adjacent handful of segments -- close enough to share a
+  # trench, soil and install crew, which is the mechanism being captured.
+  neighbour_radius_m: 250
+
   break_types: ["MAIN"]
   excluded_break_statuses: ["CANCELLED"]
 

@@ -5,7 +5,7 @@
 PY := .venv/bin/python
 
 .PHONY: help setup extract extract-breaks extract-mains extract-weather \
-        deps transform transform-test docs build figures test lint fmt clean
+        deps transform transform-test docs build figures model test lint fmt clean
 
 help:
 	@grep -E "^[a-z-]+:.*?## .*$$" $(MAKEFILE_LIST) | sed "s/:.*## /\t/" | expand -t22
@@ -46,6 +46,9 @@ build:  ## Full pipeline: extract -> snapshot -> models -> tests
 
 figures:  ## Regenerate the analysis figures from the marts
 	$(PY) -m analysis.run
+
+model:  ## Run the walk-forward modelling evaluation
+	$(PY) -m ml.run
 
 test:  ## Run the offline python test suite
 	$(PY) -m pytest

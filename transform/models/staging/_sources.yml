@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  - name: raw
+    description: >
+      Date-partitioned parquet written by the `extract` package. Each run adds a
+      new `extracted_at=` partition; staging keeps only the newest, so the glob
+      stays correct as partitions accumulate.
+    meta:
+      external_location: "read_parquet('../data/raw/{name}/*/*.parquet', union_by_name = true)"
+    tables:
+      - name: water_mains
+        description: Full inventory of water main segments. One row per WATMAINID.
+      - name: water_main_breaks
+        description: Recorded break incidents. One row per WATBREAKINCIDENTID.
+      - name: weather_daily
+        description: Spliced ECCC daily climate series for Kitchener-Waterloo.

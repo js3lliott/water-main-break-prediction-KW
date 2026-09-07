@@ -1,0 +1,77 @@
+version: 2
+
+models:
+  - name: dim_pipe
+    description: >
+      One row per water main segment. Attributes are as of the latest extract;
+      once snap_water_mains has history, pipe-years should join
+      point-in-time-correct attributes instead of today's.
+    columns:
+      - name: watmainid
+        data_tests: [unique, not_null]
+      - name: length_km
+        data_tests: [not_null]
+      - name: lifetime_break_count
+        description: Breaks on this pipe after its install. Excludes predecessor breaks.
+        data_tests: [not_null]
+      - name: replaced_after_break
+        description: >
+          True where a break is recorded against this asset ID from before this
+          pipe was installed -- a dated replacement event, and the observable
+          edge of the survivorship bias.
+        data_tests: [not_null]
+
+  - name: fct_break_incident
+    description: One row per confirmed main break. Not a training table -- it has no negatives.
+    columns:
+      - name: break_incident_id
+        data_tests: [unique, not_null]
+      - name: incident_season
+        data_tests:
+          - accepted_values: {values: ["WINTER", "SPRING", "SUMMER", "FALL"]}
+
+  - name: fct_pipe_year
+    description: >
+      THE TRAINING TABLE. One row per pipe per year at risk, ~340k complete-year
+      rows at a ~0.55% positive rate. Every feature is as-of 1 January of
+      panel_year; break_count and broke_in_year are the only columns describing
+      the year itself.
+    data_tests:
+      # The grain contract. This is the test that would have caught the
+      # ROADSEGMENTID fanout on the run it was introduced.
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [watmainid, panel_year]
+    columns:
+      - name: watmainid
+        data_tests:
+          - not_null
+          - relationships: {to: ref('dim_pipe'), field: watmainid}
+      - name: panel_year
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range: {min_value: 1997, max_value: 2100}
+      - name: broke_in_year
+        data_tests: [not_null]
+      - name: break_count
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range: {min_value: 0, max_value: 20}
+      - name: length_km
+        description: Exposure. Rate models take log(length_km) as an offset.
+        data_tests: [not_null]
+      - name: age_years
+        data_tests:
+          - dbt_utils.accepted_range: {min_value: 1, max_value: 200}
+
+  - name: mart_network_health
+    description: Breaks per 100 km per year by material, pressure zone and install decade.
+    columns:
+      - name: breaks_per_100km
+        description: The unit the water industry benchmarks on.
+        data_tests:
+          # Municipal break rates run roughly 10-100 per 100 km per year.
+          # 500 is a generous ceiling that still catches a denominator bug.
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 500
+              config: {where: "breaks_per_100km is not null"}

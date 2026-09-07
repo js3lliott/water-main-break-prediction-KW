@@ -1,0 +1,232 @@
+{
+  "name": "Water Mains",
+  "objectIdField": "OBJECTID",
+  "maxRecordCount": 2000,
+  "geometryType": "esriGeometryPolyline",
+  "fields": [
+    {
+      "name": "OBJECTID",
+      "type": "esriFieldTypeOID",
+      "alias": "OBJECTID",
+      "sqlType": "sqlTypeOther",
+      "nullable": false,
+      "editable": false,
+      "domain": null,
+      "defaultValue": null
+    },
+    {
+      "name": "WATMAINID",
+      "type": "esriFieldTypeInteger",
+      "alias": "WATMAINID",
+      "sqlType": "sqlTypeOther",
+      "nullable": true,
+      "editable": true,
+      "domain": null,
+      "defaultValue": null
+    },
+    {
+      "name": "STATUS",
+      "type": "esriFieldTypeString",
+      "alias": "STATUS",
+      "sqlType": "sqlTypeOther",
+      "length": 50,
+      "nullable": true,
+      "editable": true,
+      "domain": {
+        "type": "codedValue",
+        "name": "GISStatusAbandoned",
+        "mergePolicy": "esriMPTDefaultValue",
+        "splitPolicy": "esriSPTDuplicate",
+        "description": "Active and abandoned status",
+        "codedValues": [
+          {
+            "name": "ACTIVE",
+            "code": "ACTIVE"
+          },
+          {
+            "name": "ABANDONED",
+            "code": "ABANDONED"
+          },
+          {
+            "name": "UNKNOWN",
+            "code": "UNKNOWN"
+          }
+        ]
+      },
+      "defaultValue": "ACTIVE"
+    },
+    {
+      "name": "PIPE_SIZE",
+      "type": "esriFieldTypeInteger",
+      "alias": "PIPE_SIZE",
+      "sqlType": "sqlTypeOther",
+      "nullable": true,
+      "editable": true,
+      "domain": {
+        "type": "codedValue",
+        "name": "WatPipeSizeInt",
+        "mergePolicy": "esriMPTDefaultValue",
+        "splitPolicy": "esriSPTDuplicate",
+        "description": "Water pipe, valve and casing sizes in millimetres",
+        "codedValues": [
+          {
+            "name": "19",
+            "code": 19
+          },
+          {
+            "name": "25",
+            "code": 25
+          },
+          {
+            "name": "38",
+            "code": 38
+          },
+          {
+            "name": "50",
+            "code": 50
+          },
+          {
+            "name": "75",
+            "code": 75
+          },
+          {
+            "name": "100",
+            "code": 100
+          },
+          {
+            "name": "150",
+            "code": 150
+          },
+          {
+            "name": "200",
+            "code": 200
+          },
+          {
+            "name": "250",
+            "code": 250
+          },
+          {
+            "name": "300",
+            "code": 300
+          },
+          {
+            "name": "350",
+            "code": 350
+          },
+          {
+            "name": "400",
+            "code": 400
+          },
+          {
+            "name": "450",
+            "code": 450
+          },
+          {
+            "name": "600",
+            "code": 600
+          },
+          {
+            "name": "750",
+            "code": 750
+          },
+          {
+            "name": "900",
+            "code": 900
+          },
+          {
+            "name": "1200",
+            "code": 1200
+          },
+          {
+            "name": "0",
+            "code": 0
+          }
+        ]
+      },
+      "defaultValue": 0
+    },
+    {
+      "name": "MATERIAL",
+      "type": "esriFieldTypeString",
+      "alias": "MATERIAL",
+      "sqlType": "sqlTypeOther",
+      "length": 20,
+      "nullable": true,
+      "editable": true,
+      "domain": {
+        "type": "codedValue",
+        "name": "WatMainMaterial",
+        "mergePolicy": "esriMPTDefaultValue",
+        "splitPolicy": "esriSPTDuplicate",
+        "description": "Water main material",
+        "codedValues": [
+          {
+            "name": "AC - ASBESTOS CEMENT",
+            "code": "AC"
+          },
+          {
+            "name": "CI - CAST IRON",
+            "code": "CI"
+          },
+          {
+            "name": "COP - COPPER",
+            "code": "COP"
+          },
+          {
+            "name": "CPP - CONCRETE PRESSURE PIPE",
+            "code": "CPP"
+          },
+          {
+            "name": "DI - DUCTILE IRON",
+            "code": "DI"
+          },
+          {
+            "name": "HDPE - HIGH DENSITY POLYETHYLENE",
+            "code": "HDPE"
+          },
+          {
+            "name": "HDPE IN CI - HIGH DENSITY POLYETHYLENE IN CAST IRON",
+            "code": "HDPE IN CI"
+          },
+          {
+            "name": "PVC - POLYVINYL CHLORIDE",
+            "code": "PVC"
+          },
+          {
+            "name": "PVCO - POLYVINYL CHLORINE ORIENTATED",
+            "code": "PVCO"
+          },
+          {
+            "name": "ST - STEEL",
+            "code": "ST"
+          },
+          {
+            "name": "XXX - UNKNOWN",
+            "code": "XXX"
+          },
+          {
+            "name": "PVCB - POLYVINYL CHLORIDE BIONAX",
+            "code": "PVCB"
+          },
+          {
+            "name": "PVCF - POLYVINYL CHLORIDE FUSIBLE",
+            "code": "PVCF"
+          }
+        ]
+      },
+      "defaultValue": "XXX"
+    },
+    {
+      "name": "INSTALLATION_DATE",
+      "type": "esriFieldTypeDate",
+      "alias": "INSTALLATION_DATE",
+      "sqlType": "sqlTypeOther",
+      "length": 8,
+      "nullable": true,
+      "editable": true,
+      "domain": null,
+      "defaultValue": null,
+      "precision": 1
+    }
+  ]
+}

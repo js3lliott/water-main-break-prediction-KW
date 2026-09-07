@@ -1,0 +1,81 @@
+version: 2
+
+models:
+  - name: stg_water_mains
+    description: >
+      Pipe inventory, one row per segment. Sentinel codes (PIPE_SIZE 0,
+      CONDITION_SCORE -1, CRITICALITY -1, MATERIAL 'XXX') are nulled here rather
+      than downstream, and rare materials are pooled into OTHER.
+    columns:
+      - name: watmainid
+        description: Primary key. Unique across the inventory; the correct join key for breaks.
+        data_tests: [unique, not_null]
+      - name: length_m
+        description: >
+          Segment length in metres, from Shape__Length in the layer's native
+          EPSG:26917. Not derived from geometry_wkt, which is in degrees.
+        data_tests:
+          - not_null
+      - name: material
+        data_tests:
+          - accepted_values:
+              values: ["PVC", "DI", "CI", "PVCO", "CPP", "OTHER"]
+              config: {where: "material is not null"}
+      - name: install_year
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: 1850
+              max_value: 2100
+              config: {where: "install_year is not null"}
+      - name: condition_score
+        description: >
+          Provenance unknown; possibly assigned after observed breaks, in which
+          case it encodes the target. Phase 4 trains with and without it.
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 10
+              config: {where: "condition_score is not null"}
+      - name: pressure_zone
+        data_tests: [not_null]
+
+  - name: stg_water_main_breaks
+    description: >
+      Confirmed main breaks. Filtered to BREAK_TYPE = 'MAIN' and
+      STATUS <> 'CANCELLED' via dbt vars, so both choices are visible.
+    columns:
+      - name: break_incident_id
+        data_tests: [unique, not_null]
+      - name: watmainid
+        description: ASSETID from the source. Joins to stg_water_mains.watmainid.
+        data_tests: [not_null]
+      - name: incident_date
+        data_tests: [not_null]
+      - name: break_type
+        data_tests:
+          - accepted_values: {values: ["MAIN"]}
+      - name: status
+        data_tests:
+          - accepted_values: {values: ["REPAIR COMPLETED"]}
+      - name: reported_material
+        description: >
+          NOT a historical record. These ASSET_* columns are a denormalised copy
+          of current inventory (98.4% material agreement with dim_pipe), so they
+          describe the pipe there now, not the one that failed. Kept for the
+          replacement analysis only; never use as a feature.
+
+  - name: stg_weather_daily
+    description: Spliced daily climate across three ECCC stations. One row per date.
+    columns:
+      - name: weather_date
+        data_tests: [unique, not_null]
+      - name: mean_temp_c
+        description: Non-null by construction; the splice only keeps days a station reported.
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range: {min_value: -45, max_value: 40}
+      - name: source_station_name
+        description: Which station supplied this day. Makes the splice visible downstream.
+        data_tests:
+          - accepted_values:
+              values: ["KITCHENER/WATERLOO", "WATERLOO WELLINGTON A", "ROSEVILLE"]

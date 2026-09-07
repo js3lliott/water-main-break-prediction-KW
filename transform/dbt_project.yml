@@ -1,0 +1,50 @@
+name: kw_water_risk
+version: "0.1.0"
+config-version: 2
+
+profile: kw_water_risk
+
+model-paths: ["models"]
+snapshot-paths: ["snapshots"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+vars:
+  # The panel starts in 1997. Only 10 break records predate it, so earlier
+  # years would encode "no record" as "no break" -- the single most damaging
+  # thing you can do to a rare-event model.
+  panel_start_year: 1997
+
+  # A pipe enters the panel the year *after* installation, so no row carries a
+  # partial year of exposure.
+  # A break is a "confirmed main break" only if it is on a main and not cancelled.
+  # Radius for neighbourhood features. Mean segment length is ~58 m, so 250 m
+  # reaches roughly the adjacent handful of segments -- close enough to share a
+  # trench, soil and install crew, which is the mechanism being captured.
+  neighbour_radius_m: 250
+
+  break_types: ["MAIN"]
+  excluded_break_statuses: ["CANCELLED"]
+
+models:
+  kw_water_risk:
+    +materialized: table
+    staging:
+      +schema: staging
+      # Tables, not views. The sources are external parquet read through a
+      # project-relative path, so a view would only resolve when the reader's
+      # CWD happens to be transform/. Materialising pulls the data into the
+      # warehouse once, so ml/ and app/ can query it from anywhere.
+      +materialized: table
+    intermediate:
+      +schema: intermediate
+      +materialized: table
+    marts:
+      +schema: marts
+      +materialized: table
+
+snapshots:
+  kw_water_risk:
+    +schema: snapshots

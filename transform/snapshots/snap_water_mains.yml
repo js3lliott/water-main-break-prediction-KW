@@ -1,0 +1,39 @@
+version: 2
+
+snapshots:
+  - name: snap_water_mains
+    relation: ref('stg_water_mains')
+    description: >
+      Slowly-changing history of the pipe inventory.
+
+      This is what makes point-in-time-correct features possible later. Right
+      now fct_pipe_year retro-applies TODAY'S attributes to every historical
+      year, which is wrong for anything that changes -- condition_score most of
+      all, and condition_score is exactly the field whose provenance is already
+      in question. Once this snapshot has accumulated runs, a pipe-year can join
+      the attributes that were true that year instead.
+
+      Two honest caveats:
+        * It only accumulates from its first run. It cannot reconstruct history
+          that was never captured, so early panel years will never have
+          point-in-time attributes.
+        * Strategy is `check`, not `timestamp`. The source has no reliable
+          updated_at -- _extracted_at changes on every extract whether or not
+          the row changed -- so a timestamp strategy would write a new version
+          of all 16,207 rows every single run.
+    config:
+      schema: snapshots
+      unique_key: watmainid
+      strategy: check
+      check_cols:
+        - status
+        - material
+        - diameter_mm
+        - condition_score
+        - criticality
+        - pressure_zone
+        - is_lined
+        - lined_material
+        - install_date
+        - length_m
+        - ownership

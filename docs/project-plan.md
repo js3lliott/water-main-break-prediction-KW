@@ -219,7 +219,17 @@ Effort estimates assume focused part-time work. Total ≈ **3–4 weeks**.
 - [ ] Refactor `fetch_data.py` into `extract/arcgis.py`. Keep the pagination logic — it's correct. Strip the Prefect decorators (orchestration comes back in Phase 8, and Prefect 2.10 is long past EOL).
 - [ ] Preserve **geometry**. The CSV exports have no coordinates for mains — only `Shape__Length`. Request `f=geojson` and write WKT/GeoJSON so pipe centrelines survive. Without geometry there is no line map and no spatial features.
 - [ ] Write partitioned parquet with an `_extracted_at` column
-- [ ] `extract/weather.py` — ECCC daily climate, station **Waterloo Wellington A** (climate ID 6149387), 1997–present
+- [ ] `extract/weather.py` — ECCC daily climate, 1996–present
+
+  **Correction, found during execution.** This plan originally named *Waterloo Wellington A* (climate ID 6149387) as the weather station. The ECCC station inventory shows that station **stopped reporting daily observations in 2003**, so it cannot cover the panel period. The series has to be spliced:
+
+  | Station | ID | Daily coverage | Role |
+  |---|---|---|---|
+  | `WATERLOO WELLINGTON A` | 4832 | 1970–2003 | Airport site, legacy record |
+  | `KITCHENER/WATERLOO` | 48569 | 2010–2026 | Same airport site, renamed and re-indexed |
+  | `ROSEVILLE` | 4816 | 1972–2026 | ~18 km south; covers the 2004–2009 gap |
+
+  The two airport records are one physical site but leave a six-year hole that only ROSEVILLE spans. Each output row records `source_station_id`, so the splice is visible in the warehouse rather than hidden in the extractor.
 - [ ] pytest with a recorded fixture response — no network calls in CI
 
 **Done when:** `python -m extract.run` produces fresh parquet for mains, breaks, and weather, and the breaks file contains records after 2023-01-09.
@@ -376,3 +386,17 @@ Measured directly from `data/raw/` on 2026-09-06:
 | Pressure zones | 15 |
 | Lined segments | 58 of 15,903 |
 | Recent break counts | 2019: 97 · 2020: 72 · 2021: 86 · 2022: 106 |
+
+### Live server, measured 2026-09-06
+
+The local CSVs are a January 2023 snapshot. Against the live feature server:
+
+| Fact | Local CSV | Live API | Delta |
+|---|---|---|---|
+| Break records | 2,766 | **3,018** | +252 |
+| Inventory segments | 15,903 | **16,207** | +304 |
+| Latest break | 2023-01-09 | **2026-09-02** | +3.6 years |
+
+Both layers report `supportsPagination: true`, so the extractor pages with `resultOffset` rather than bisecting OBJECTID ranges as the original script did. Native SR is EPSG:26917; the extractor requests `outSR=4326`.
+
+The API returns **37 fields for breaks against the CSV's 52**. Every dropped field is one this profile already flagged as fully-null, constant, or >90% null — plus `X`/`Y`, superseded by real geometry. Six of them (`POSITIVE_PRESSURE_MAINTANED`, `AIR_GAP_MAINTANED`, `MECHANICAL_REMOVAL`, `FLUSHING_EXCAVATION`, `HIGHER_VELOCITY_FLUSHING`, `ANODE_INSTALLED`) were features in `model_data.csv`. They describe crew response *after* a break, so they were leakage regardless; their absence from the API settles the question.

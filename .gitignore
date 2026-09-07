@@ -1,10 +1,59 @@
-*.DS_Store
-*.ipynb_checkpoints/*.ipynb
-nbs/__pycache__
+# ---- data ----
+# Raw and derived data are reproducible from the live ArcGIS feature server
+# and ECCC climate API via `make extract`. Nothing under data/ is tracked.
+data/
+*.duckdb
+*.duckdb.wal
+*.db
+*.parquet
+
+# ---- experiment tracking ----
+mlruns/
+mlartifacts/
+
+# ---- python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.env
+.python-version
+
+# ---- notebooks ----
+.ipynb_checkpoints/
 *.virtual_documents
-.ipynb_checkpoints
+
+# ---- tooling ----
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# ---- dbt (phase 2) ----
+transform/target/
+transform/dbt_packages/
+transform/logs/
+
+# ---- secrets ----
+# notebooks/config.py holds live mapbox / gmaps API keys. The pre-existing
+# .gitignore excluded `config.py`; keep that rule -- dropping it would commit
+# credentials on the next `git add`.
 config.py
-toronto_data
-.vscode
-figures
-mlruns
+.env
+.env.*
+secrets.toml
+.streamlit/secrets.toml
+
+# ---- legacy stray outputs at repo root (superseded by data/raw parquet) ----
+/cleaned_break_data.csv
+/test_predict_data.csv
+
+# ---- editors / os ----
+.vscode/
+.idea/
+.DS_Store

@@ -1,0 +1,74 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kw-water-risk"
+version = "0.1.0"
+description = "Pipe-level water main break risk model for the City of Kitchener"
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+license = { text = "MIT" }
+authors = [{ name = "Jordan Samek" }]
+
+# Base install covers extraction and the warehouse. Geometry is handled with
+# shapely alone -- no geopandas/fiona/GDAL, which keeps CI and the app image
+# small. The ArcGIS GeoJSON response is parsed with the stdlib json module.
+dependencies = [
+    "requests>=2.31",
+    "pandas>=2.2",
+    "pyarrow>=15.0",
+    "shapely>=2.0",
+    "duckdb>=1.0",
+]
+
+[project.optional-dependencies]
+transform = [
+    "dbt-core>=1.8",
+    "dbt-duckdb>=1.8",
+]
+ml = [
+    "scikit-learn>=1.4",
+    "lightgbm>=4.3",
+    "statsmodels>=0.14",
+    "lifelines>=0.28",
+    "shap>=0.45",
+    "mlflow>=2.12",
+]
+app = [
+    "streamlit>=1.35",
+    "pydeck>=0.9",
+    "plotly>=5.20",
+]
+dev = [
+    "pytest>=8.0",
+    "responses>=0.25",
+    "ruff>=0.4",
+]
+
+[project.scripts]
+kw-extract = "extract.run:main"
+
+[tool.setuptools]
+packages = ["extract"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+# Legacy surfaces are excluded until the phase that rewrites them, so lint
+# failures point at live code rather than at code already scheduled for
+# replacement:
+#   st_app.py   -> replaced in phase 6 (app rebuild)
+#   notebooks/  -> archived in phase 3 (analysis rewrite against the marts)
+exclude = [
+    "st_app.py",
+    "notebooks/",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

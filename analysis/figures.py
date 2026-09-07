@@ -7,12 +7,16 @@ rebuilt against new data without touching its layout.
 
 from __future__ import annotations
 
+import re
+
 import matplotlib
 
 matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
+from matplotlib.collections import LineCollection  # noqa: E402
+from matplotlib.lines import Line2D  # noqa: E402
 from matplotlib.ticker import FuncFormatter  # noqa: E402
 
 from analysis import queries  # noqa: E402
@@ -345,6 +349,85 @@ def fig_concentration(con) -> plt.Figure:
     return fig
 
 
+def fig_risk_map(con) -> plt.Figure:
+    """The network drawn as it runs in the ground, coloured by risk.
+
+    Deliberately not a heat map of past break locations -- that answers where
+    the city has already dug. Each main is drawn as its own centreline, so the
+    high-risk mid-century cast iron through the older core reads as structure
+    rather than as a blur.
+    """
+    df = queries.scored_network(con)
+
+    def to_segments(wkt: str) -> list:
+        """Split LINESTRING / MULTILINESTRING WKT into coordinate arrays."""
+        if not isinstance(wkt, str) or "(" not in wkt:
+            return []
+        body = wkt[wkt.index("(") :]
+        parts = re.findall(r"\(([^()]+)\)", body) or [body.strip("()")]
+        out = []
+        for part in parts:
+            coords = []
+            for pair in part.split(","):
+                bits = pair.strip().split()
+                if len(bits) >= 2:
+                    coords.append((float(bits[0]), float(bits[1])))
+            if len(coords) > 1:
+                out.append(np.asarray(coords))
+        return out
+
+    # Sqrt ramp: the rate distribution is skewed enough that a linear scale
+    # renders almost the whole network in one shade.
+    top = max(float(df["score_per_100km"].quantile(0.98)), 1e-9)
+
+    segments, colours, widths = [], [], []
+    for rate, wkt in zip(df["score_per_100km"], df["geometry_wkt"], strict=True):
+        t = float(np.sqrt(np.clip(rate / top, 0, 1)))
+        colour = (
+            (44 + t * (171 - 44)) / 255,
+            (127 + t * (67 - 127)) / 255,
+            (184 + t * (24 - 184)) / 255,
+            0.45 + 0.55 * t,
+        )
+        for part in to_segments(wkt):
+            segments.append(part)
+            colours.append(colour)
+            widths.append(0.35 + 1.5 * t)
+
+    fig, ax = plt.subplots(figsize=(7.6, 7.6))
+    ax.add_collection(LineCollection(segments, colors=colours, linewidths=widths))
+
+    lons = np.concatenate([s[:, 0] for s in segments])
+    lats = np.concatenate([s[:, 1] for s in segments])
+    ax.set_xlim(lons.min(), lons.max())
+    ax.set_ylim(lats.min(), lats.max())
+    ax.set_aspect(1 / np.cos(np.radians(float(lats.mean()))))
+    ax.set_title(f"{len(df):,} water mains, {df['length_km'].sum():,.0f} km, coloured by risk")
+    _subtitle(
+        ax, "Rust = highest expected break rate. Mostly 1950s-60s cast iron in the older core."
+    )
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.grid(visible=False)
+    _despine(ax, keep=())
+
+    handles = [
+        Line2D([], [], color="#2C7FB8", lw=2.5, label="Low"),
+        Line2D([], [], color="#6A6188", lw=2.5, label="Moderate"),
+        Line2D([], [], color="#AB4318", lw=2.5, label="High"),
+    ]
+    ax.legend(
+        handles=handles,
+        loc="lower right",
+        frameon=False,
+        fontsize=8.5,
+        title="Expected breaks / 100 km / yr",
+        title_fontsize=8.5,
+    )
+    fig.tight_layout()
+    return fig
+
+
 FIGURES = {
     "01_material_rate": fig_material_rate,
     "02_age_vs_cohort": fig_age_vs_cohort,
@@ -352,5 +435,6 @@ FIGURES = {
     "04_seasonality": fig_seasonality,
     "05_winter_severity": fig_winter_severity,
     "06_break_map": fig_break_map,
+    "08_risk_map": fig_risk_map,
     "07_concentration": fig_concentration,
 }

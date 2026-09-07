@@ -294,3 +294,28 @@ def break_history_profile(con: duckdb.DuckDBPyConnection) -> pd.DataFrame:
         where not is_negligible_length
         group by 1
     """).df()
+
+
+def scored_network(con: duckdb.DuckDBPyConnection) -> pd.DataFrame:
+    """Pipe centrelines with their latest risk score, for the network map.
+
+    Reads the score table written by `ml.score` rather than a mart, so this is
+    the one analysis query that depends on the modelling layer having run.
+    """
+    return con.sql("""
+        with latest as (
+            select * from main_scores.fct_pipe_risk_score
+            where scored_at = (select max(scored_at) from main_scores.fct_pipe_risk_score)
+        )
+        select
+            p.watmainid,
+            p.material,
+            p.length_km,
+            p.geometry_wkt,
+            latest.score_per_100km,
+            latest.risk_cell
+        from main_marts.dim_pipe p
+        join latest on latest.watmainid = p.watmainid
+        where p.geometry_wkt is not null
+          and not p.is_negligible_length
+    """).df()

@@ -133,7 +133,8 @@ select
     winter.has_adequate_coverage                    as winter_has_adequate_coverage,
 
     -- ---- flags ----
-    spine.is_complete_year
+    spine.is_complete_year,
+    spine.is_forecast_year
 
 from spine
 left join history

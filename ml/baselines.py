@@ -130,11 +130,14 @@ def stratified_rate_score(train: pd.DataFrame, test: pd.DataFrame) -> np.ndarray
     other 94%; keying on all three lets one lookup table serve both without a
     hand-written branch.
 
-    Still just a group-by fitted on training years. That is the point -- it is
-    auditable by the engineer who has to act on the list, and a colleague can
-    reproduce it in SQL.
+    Delegates to `StratifiedRateRanker`, the class the scoring pipeline ships,
+    so the thing measured here is literally the thing deployed. Wiring the
+    evaluation to a reimplementation is how a model comes to score well in a
+    notebook and differently in production.
     """
-    return _empirical_rate(train, test, ["prior_break_count_capped", "material", "install_decade"])
+    from ml.ranker import StratifiedRateRanker
+
+    return StratifiedRateRanker().fit(train).predict(test)
 
 
 HONEST_BASELINES["stratified_rate"] = stratified_rate_score

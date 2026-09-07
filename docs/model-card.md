@@ -102,6 +102,14 @@ Both fixed: early stopping now uses AUC on the last three *training* years, with
 3. **Roughly 20–40 breaks per year** in the stratum that matters. Single-window results are noise; that is why everything here is ten-year walk-forward.
 4. **No soil, pressure-transient, traffic-loading or work-order cost data.** These are the obvious next features, and their absence is the most likely reason a flexible model cannot beat a three-column lookup.
 5. **Kitchener only.** Waterloo is a separate municipality with its own portal.
+6. **The source key is not stable.** `WATMAINID` was unique across the inventory
+   until a weekly refresh found main 35020 split into two GIS features sharing
+   one ID. `OBJECTID` identifies a feature; `WATMAINID` identifies a main.
+   Staging collapses features to one row per main — lengths summed, attributes
+   from the longest piece — because `WATMAINID` is the key break records join
+   on. That is safe while splitting is rare (1 main in 16,208);
+   `assert_feature_splitting_stays_rare` fails the build above 1%, at which
+   point a feature-grain model becomes the right answer.
 
 ## Scoring pipeline (phase 5)
 
@@ -166,4 +174,22 @@ has looked.
 
 ## Not yet done
 
-Poisson/negative-binomial rate model with a `log(length_km)` offset, and survival models (Weibull AFT, Andersen–Gill) for recurrent events. Both are in the plan; neither is required for the recommendation above, which is that the simple ranker ships.
+**Rate and survival models.** A Poisson / negative-binomial GLM with a
+`log(length_km)` offset, and survival models (Weibull AFT for time-to-first-break,
+Andersen–Gill for recurrent events). Both are in the plan. Neither is required
+for the recommendation above — which is that the simple ranker ships — but the
+survival formulation handles right-censoring properly, which the classifier
+ignores, and would produce a curve per pipe rather than a bare rate.
+
+**Point-in-time attributes.** `snap_water_mains` has started accumulating, but
+it can only capture history from its first run forward. Until it has depth,
+historical pipe-years are scored with today's inventory values. That is what
+would eventually make `condition_score` usable: a score as it stood *before* the
+year being predicted carries no leakage.
+
+**The features most likely to change the conclusion.** Soil corrosivity,
+pressure transients, traffic loading, and repair cost from the work-order
+system. The gradient-boosted model losing to a three-column lookup is most
+plausibly a statement about how little the data contains, not about the method —
+1,100 positives across 24 features is thin, and the strongest signals are
+already captured by three of them.
